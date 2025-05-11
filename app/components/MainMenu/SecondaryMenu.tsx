@@ -6,7 +6,7 @@ import Menu, { MenuItemType } from "./Menu";
 const rtlContainerStyle = {
   direction: "rtl" as const,
   display: "flex",
-  flexDirection: "row-reverse" as const,
+
   justifyContent: "center",
   width: "100%",
 };

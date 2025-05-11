@@ -7,7 +7,7 @@ import Carousel from "../Carousel";
 interface Profile {
   id: number;
   name: string;
-  imageUrl: string;
+ 
   isHot?: boolean;
   isPremium?: boolean;
   isHappyHour?: boolean;
@@ -39,6 +39,18 @@ const FeaturedProfiles = () => {
       isHappyHour: true,
       isHot: true,
     },
+    { id: 9, name: "רחל", imageUrl: "/images/top-2.jpg", isPremium: true },
+    { id: 10, name: "שרה", imageUrl: "/images/top-3.jpg", isTop: true },
+    { id: 11, name: "מיכל", imageUrl: "/images/top-4.webp", isHappyHour: true },
+    { id: 12, name: "רבקה", imageUrl: "/images/top-5.webp", isHot: true },
+    { id: 13, name: "אסיה", imageUrl: "/images/profile1.jpg" },
+    { id: 14, name: "נורית", imageUrl: "/images/top-1.jpg", isPremium: true, isTop: true },
+    { id: 15, name: "מיה", imageUrl: "/images/top-2.jpg", isHappyHour: true },
+    { id: 16, name: "ליאת", imageUrl: "/images/top-3.jpg" },
+    { id: 17, name: "נורית", imageUrl: "/images/top-4.webp", isHot: true },
+    { id: 18, name: "מיה", imageUrl: "/images/top-5.webp", isPremium: true },
+    { id: 19, name: "ליאת", imageUrl: "/images/profile1.jpg", isTop: true },
+    { id: 20, name: "רחל", imageUrl: "/images/top-2.jpg", isHappyHour: true },
   ];
 
   // Render function for each profile

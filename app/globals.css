@@ -117,19 +117,20 @@ body {
 [dir="rtl"] nav .flex,
 [dir="rtl"] header .flex,
 [dir="rtl"] footer .flex {
-  flex-direction: row-reverse;
+  /* flex-direction: row-reverse; */
+  direction: rtl !important;
 }
 
 /* Replace with more specific rules for different contexts */
 /* Header needs special treatment */
 [dir="rtl"] header .container {
   display: flex !important;
-  flex-direction: row-reverse !important;
+  /* flex-direction: row-reverse !important; */
 }
 
 /* Special case for centered logo container that should maintain center alignment */
 [dir="rtl"] header .flex-1.flex.justify-center {
-  flex-direction: row !important;
+  /* flex-direction: row !important; */
 }
 
 [dir="rtl"] .text-left {
@@ -276,13 +277,13 @@ body {
 
 .secondary-container {
   display: flex !important;
-  flex-direction: row-reverse !important;
+  /* flex-direction: row-reverse !important; */
   justify-content: center !important;
 }
 
 .secondary-list {
   display: flex !important;
-  flex-direction: row-reverse !important;
+  /* flex-direction: row-reverse !important; */
   justify-content: center !important;
   align-items: center !important;
   gap: 2rem !important;
@@ -768,7 +769,7 @@ h6 {
 
 /* Special RTL button styling */
 .rtl-button {
-  flex-direction: row-reverse !important;
+  /* flex-direction: row-reverse !important; */
 }
 
 .rtl-button svg {
@@ -793,12 +794,12 @@ h6 {
 
 /* Override general RTL flex rules for specific components */
 [dir="rtl"] .header-gradient .flex {
-  flex-direction: row-reverse !important;
+  /* flex-direction: row-reverse !important; */
 }
 
 /* Fix for .flex inside header-gradient containing menu items */
 [dir="rtl"] .header-gradient ul.flex {
-  flex-direction: row-reverse !important;
+  /* flex-direction: row-reverse !important; */
 }
 
 /* Individual flex items inside header-gradient menus */
@@ -808,8 +809,6 @@ h6 {
 
 /* Ensure menu with .rtl-nav class is properly displayed */
 ul.rtl-nav {
-  flex-direction: row-reverse !important;
-  justify-content: start !important;
   width: 100% !important;
 }
 

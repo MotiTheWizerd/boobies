@@ -46,7 +46,6 @@ const Menu = ({
       className={`flex items-center gap-6 text-sm overflow-x-auto pb-2 scrollbar-thin ${
         rtl ? "rtl-nav" : ""
       } ${className}`}
-      style={rtl ? { flexDirection: "row-reverse" } : {}}
       variants={menuContainer}
       initial="hidden"
       animate="visible"

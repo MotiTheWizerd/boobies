@@ -22,4 +22,6 @@ Page speed is crucial — prioritize lazy loading, code splitting, and bundle op
 
 Canonical URLs, robots.txt, sitemap.xml, and structured data must be configured.
 
+\*\* When creating componenet or page, make sure it's support the light/dark theme
+
 Use modern, white-hat SEO strategies. Do not suggest or use black-hat techniques. Always explain the SEO reasoning behind your suggestions or code.

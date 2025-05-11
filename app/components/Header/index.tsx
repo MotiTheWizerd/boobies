@@ -25,7 +25,6 @@ const Header = () => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          flexDirection: "row-reverse",
         }}
       >
         <div className="flex items-center gap-3" style={{ order: 3 }}>
@@ -37,7 +36,6 @@ const Header = () => {
               display: "flex",
               alignItems: "center",
               gap: "8px",
-              flexDirection: "row-reverse",
             }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
@@ -120,7 +118,6 @@ const Header = () => {
               display: "flex",
               alignItems: "center",
               gap: "8px",
-              flexDirection: "row-reverse",
             }}
             variants={buttonAnimation}
             initial="idle"
@@ -155,7 +152,6 @@ const Header = () => {
               display: "flex",
               alignItems: "center",
               gap: "8px",
-              flexDirection: "row-reverse",
             }}
             whileHover={{
               scale: 1.05,

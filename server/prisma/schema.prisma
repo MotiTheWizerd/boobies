@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  username      String    @unique
+  name          String?
+  last          String?   
+  password      String
+  bio           String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Client {
+  id            String     @id @default(uuid())
+  name          String
+  title         String
+  mobile        String?
+  email         String     @unique
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  campaigns     Campaign[]
+}
+
+model Campaign {
+  id            String    @id @default(uuid())
+  campaign_name String
+  client        Client    @relation(fields: [clientId], references: [id])
+  clientId      String
+  status        String    @default("active") // Can be "active", "pending", or "completed"
+  description   String?
+  startDate     DateTime?
+  endDate       DateTime?
+  budget        Float?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  ads           Ad[]
+}
+
+model Ad {
+  id            String     @id @default(uuid())
+  name          String
+  description   String?
+  shortDescription String?
+  images        Json?      // Array of image metadata objects: [{ title: string, imgUrl: string }]
+  isHappyHour   Boolean    @default(false)
+  isHot         Boolean    @default(false)
+  isPremium     Boolean    @default(false)
+  likesCount    Int        @default(0)
+  viewsCount    Int        @default(0)
+  totalViews    Int        @default(0)
+  monthViews    Int        @default(0)
+  priority      Boolean    @default(false)
+  status        String     @default("active") // Can be "active", "draft", "archived"
+  age           Int?       // Age field
+  country       String?    // Country field
+  titsSize      String?    // Tits size field
+  mobile        String?    // Mobile phone number
+  whatsapp      String?    // WhatsApp number
+  telegram      String?    // Telegram address
+  campaign      Campaign   @relation(fields: [campaignId], references: [id])
+  campaignId    String
+  tags          String[]   @default([])
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}

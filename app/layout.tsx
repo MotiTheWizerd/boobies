@@ -31,50 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="he" dir="rtl" style={{ direction: "rtl" }}>
-      <head>
-        <style
-          dangerouslySetInnerHTML={{
-            __html: `
-          body, html, div, section, article, nav, header, footer {
-            direction: rtl !important;
-          }
-          .rtl-fix {
-            direction: rtl !important;
-            text-align: right !important;
-          }
-          [dir="rtl"] header .container {
-            flex-direction: row-reverse !important;
-          }
-          /* Specific fix for the main menu */
-          [dir="rtl"] .header-gradient ul {
-            flex-direction: row-reverse !important;
-          }
-          [dir="rtl"] .header-gradient li {
-            float: right;
-          }
-          /* Stronger overrides for menus */
-          .header-gradient ul,
-          .secondary-menu ul {
-            display: flex !important;
-            flex-direction: row-reverse !important;
-          }
-          nav ul {
-            flex-direction: row-reverse !important;  
-          }
-          /* Ultra-specific fix for the bottom menu */
-          .secondary-menu ul,
-          ul.rtl-nav {
-            display: flex !important;
-            flex-direction: row-reverse !important;
-            justify-content: center !important;
-          }
-          .secondary-menu li {
-            float: right !important;
-          }
-        `,
-          }}
-        />
-      </head>
+      <head></head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${openSans.variable} antialiased ornamental-bg rtl-fix bg-background text-foreground`}
         style={{ direction: "rtl" }}

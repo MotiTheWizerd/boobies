@@ -1,8 +1,12 @@
 "use client";
-import React, { useState, useRef, ReactNode } from "react";
+import React, { useState, useRef, useEffect, ReactNode } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 interface CarouselProps<T> {
+  /**
+   * Number of items to scroll at once
+   */
+  itemsPerScroll?: number;
   /**
    * Array of data items to display in the carousel
    */
@@ -78,9 +82,10 @@ function Carousel<T>({
   title,
   titleUnderline = true,
   titleClassName = "text-2xl font-bold text-center relative text-gray-900 dark:text-gray-100",
-  containerClassName = "py-4",
-  itemsContainerClassName = "py-4 px-8",
-  scrollAmount = 300,
+  containerClassName = "py-4 max-w-4xl mx-auto",
+  itemsContainerClassName = "py-4 px-4 md:px-8 max-w-4xl mx-auto",
+  scrollAmount = 300, // Default scroll amount in pixels
+  itemsPerScroll = 3, // Number of items to scroll at once
   showArrows = true,
   rtl = false,
   fadedEdges = true,
@@ -90,9 +95,23 @@ function Carousel<T>({
   const [isHovering, setIsHovering] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Ensure smooth scrolling behavior on mount
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.style.scrollBehavior = 'smooth';
+    }
+  }, []);
+
   // Scroll the carousel left or right
   const scroll = (direction: "left" | "right") => {
     if (containerRef.current) {
+      // Calculate the width of one item
+      const firstItem = containerRef.current.querySelector<HTMLDivElement>('.carousel-item');
+      const itemWidth = firstItem?.offsetWidth || 0;
+      
+      // Calculate total scroll amount based on items per scroll
+      const totalScrollAmount = itemWidth * (itemsPerScroll || 3);
+      
       // Adjust scroll direction based on RTL setting
       const adjustedDirection = rtl
         ? direction === "left"
@@ -100,12 +119,10 @@ function Carousel<T>({
           : "left"
         : direction;
 
-      const amount =
-        adjustedDirection === "left" ? -scrollAmount : scrollAmount;
-
+      // Use scrollBy with smooth behavior for consistent animation
       containerRef.current.scrollBy({
-        left: amount,
-        behavior: "smooth",
+        left: adjustedDirection === "left" ? -totalScrollAmount : totalScrollAmount,
+        behavior: "smooth"
       });
     }
   };
@@ -156,7 +173,7 @@ function Carousel<T>({
           dir={rtl ? "rtl" : "ltr"}
         >
           {items.map((item, index) => (
-            <div key={index} className={itemWrapperClassName}>
+            <div key={index} className={`${itemWrapperClassName} carousel-item`}>
               {renderItem(item, index)}
             </div>
           ))}

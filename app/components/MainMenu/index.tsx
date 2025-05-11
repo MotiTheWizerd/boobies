@@ -84,7 +84,6 @@ const MainMenu = () => {
         style={{
           direction: "rtl",
           display: "flex",
-          flexDirection: "row-reverse",
         }}
       >
         <Menu menuItems={mainMenuItems} renderIcon={renderIcon} />
