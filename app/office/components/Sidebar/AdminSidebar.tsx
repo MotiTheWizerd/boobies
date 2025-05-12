@@ -36,7 +36,7 @@ export default function AdminSidebar() {
       <div className="flex items-center justify-between p-4 border-b border-gray-700">
         {!collapsed && (
           <Link href="/office" className="flex items-center space-x-2 ml-2">
-            <span className="font-bold text-xl text-white">פאבליש בורד</span>
+            <span className="font-bold text-xl text-white">bOObies.co.il</span>
           </Link>
         )}
         <button

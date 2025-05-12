@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Areas from "../../../components/Areas/Areas";
 
 interface AdFormProps {
   onSubmit: (data: any) => void;
@@ -22,6 +23,7 @@ interface AdFormProps {
     mobile?: string;
     whatsapp?: string;
     telegram?: string;
+    areaId?: string | number;
   };
   ad_id?: string; // Optional ad_id for edit mode
 }
@@ -55,6 +57,7 @@ export default function AdForm({
     mobile: defaultValues.mobile || "",
     whatsapp: defaultValues.whatsapp || "",
     telegram: defaultValues.telegram || "",
+    areaId: defaultValues.areaId || "",
   });
 
   // Edit mode: fetch ad data if ad_id is provided
@@ -88,6 +91,7 @@ export default function AdForm({
           mobile: data.mobile || "",
           whatsapp: data.whatsapp || "",
           telegram: data.telegram || "",
+          areaId: data.areaId || "",
         });
       })
       .catch((err) => {
@@ -116,6 +120,7 @@ export default function AdForm({
       mobile: defaultValues.mobile || "",
       whatsapp: defaultValues.whatsapp || "",
       telegram: defaultValues.telegram || "",
+      areaId: defaultValues.areaId || "",
     });
   }, [defaultValues, ad_id]);
 
@@ -126,6 +131,7 @@ export default function AdForm({
     if (!form.name.trim()) newErrors.name = "שדה חובה";
     if (!form.status) newErrors.status = "שדה חובה";
     if (!form.campaignId) newErrors.campaignId = "חובה לבחור קמפיין";
+    if (!form.areaId) newErrors.areaId = "חובה לבחור אזור";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -144,36 +150,45 @@ export default function AdForm({
     }));
   };
 
+  const handleAreaChange = (areaIdValue: string | number) => {
+    setForm((prev) => ({
+      ...prev,
+      areaId: areaIdValue,
+    }));
+    if (errors.areaId) {
+      setErrors((prev) => ({ ...prev, areaId: "" }));
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    const data = {
+    const dataToSubmit = {
       ...form,
       tags: form.tags
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean),
+      areaId: form.areaId,
     };
-    // If in edit mode, call update API directly here
     if (ad_id) {
-      // PUT/PATCH to update ad
       fetch(`/api/ads/${ad_id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(dataToSubmit),
       })
         .then(async (res) => {
           if (!res.ok) throw new Error("Failed to update ad");
           return res.json();
         })
         .then((updatedAd) => {
-          onSubmit(updatedAd); // Let parent handle redirect or message
+          onSubmit(updatedAd);
         })
         .catch((err) => {
           setErrors({ general: err.message || "Error updating ad" });
         });
     } else {
-      onSubmit(data);
+      onSubmit(dataToSubmit);
     }
   };
 
@@ -372,6 +387,20 @@ export default function AdForm({
             <p className="text-xs text-gray-500 dark:text-gray-400">
               הפרד תגיות בעזרת פסיקים
             </p>
+          </div>
+
+          {/* Areas Dropdown */}
+          <div className="space-y-2">
+            <Areas
+              label="אזור"
+              id="areaId"
+              value={form.areaId}
+              onChange={handleAreaChange}
+              className="w-full"
+            />
+            {errors.areaId && (
+              <div className="text-red-500 text-xs mt-1">{errors.areaId}</div>
+            )}
           </div>
 
           {/* Personal Details Section */}

@@ -24,9 +24,6 @@ export default function Home() {
           direction: "rtl",
         }}
       >
-        <Header />
-        <MainMenu />
-
         {/* Wrap SecondaryMenu with a div that explicitly enforces RTL */}
         <div dir="rtl" style={{ direction: "rtl", overflow: "hidden" }}>
           <SecondaryMenu />
@@ -51,8 +48,6 @@ export default function Home() {
             <HotProfiles />
           </motion.div>
         </motion.div>
-
-        <Footer />
       </motion.div>
     </ThemeProvider>
   );

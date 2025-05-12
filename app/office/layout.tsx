@@ -1,26 +1,47 @@
-import React from "react";
-import { Metadata } from "next";
-import AdminSidebar from "./components/Sidebar/AdminSidebar";
-import AdminHeader from "./components/Header/AdminHeader";
+import type { Metadata } from "next";
+import { Geist, Geist_Mono, Open_Sans } from "next/font/google";
+import "../globals.css";
+import "../output.css";
+import { ThemeProvider } from "../components/ThemeToggle/ThemeProvider";
+import { CustomToaster } from "../components/CustomToaster";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const openSans = Open_Sans({
+  variable: "--font-open-sans",
+  subsets: ["latin", "hebrew"],
+});
 
 export const metadata: Metadata = {
-  title: "פאבליש בורד - ממשק ניהול",
-  description: "ממשק ניהול למנהלי המערכת",
-  robots: "noindex, nofollow", // Ensure admin pages aren't indexed for SEO
+  title: "bOObies.co.il - משרד",
+  description: "אזור ניהול למשרד באתר bOObies.co.il",
 };
 
-export default function AdminLayout({
+export default function OfficeLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-    <div className="flex h-screen bg-gray-900 text-gray-100">
-      <AdminSidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <AdminHeader />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-800">{children}</main>
-      </div>
-    </div>
+    <html lang="he" dir="rtl" style={{ direction: "rtl" }}>
+      <head></head>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${openSans.variable} antialiased ornamental-bg rtl-fix bg-background text-foreground`}
+        style={{ direction: "rtl" }}
+      >
+        <ThemeProvider>
+          <CustomToaster />
+          {children}
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }

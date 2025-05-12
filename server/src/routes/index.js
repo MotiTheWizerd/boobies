@@ -3,6 +3,8 @@ const postRoutes = require("./postRoutes");
 const clientRoutes = require("./clientRoutes");
 const campaignRoutes = require("./campaignRoutes");
 const adRoutes = require("./adRoutes");
+const cityRoutes = require("./city.routes.js");
+const areaRoutes = require("./area.routes.js");
 const { ApiError } = require("../middlewares/errorHandler");
 
 /**
@@ -16,6 +18,8 @@ const setupRoutes = (app) => {
   app.use("/api/clients", clientRoutes);
   app.use("/api/campaigns", campaignRoutes);
   app.use("/api/ads", adRoutes);
+  app.use("/api/cities", cityRoutes);
+  app.use("/api/areas", areaRoutes);
 
   // API Documentation route - can be implemented later with Swagger
   app.get("/api/docs", (req, res) => {

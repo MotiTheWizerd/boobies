@@ -74,7 +74,7 @@ const Header = () => {
           >
             <PlaceholderImage
               src="/images/logo.png"
-              alt="לוגו פאבליש בורד"
+              alt="לוגו bOObies.co.il"
               fill
               style={{ objectFit: "contain" }}
               priority
@@ -98,7 +98,7 @@ const Header = () => {
                   ease: "linear",
                 }}
               >
-                פאבליש בורד
+                bOObies.co.il
               </motion.h1>
             </motion.div>
           </motion.div>

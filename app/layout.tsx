@@ -4,6 +4,9 @@ import "./globals.css";
 import "./output.css";
 import { ThemeProvider } from "./components/ThemeToggle/ThemeProvider";
 import { CustomToaster } from "./components/CustomToaster";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import MainMenu from "./components/MainMenu";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,7 +24,7 @@ const openSans = Open_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "פאבליש בורד - לוח פרסום",
+  title: "bOObies.co.il - לוח פרסום",
   description: "פלטפורמת פרסום ובידור למבוגרים",
 };
 
@@ -39,7 +42,10 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <CustomToaster />
+          <Header />
+          <MainMenu />
           {children}
+          <Footer />
         </ThemeProvider>
       </body>
     </html>

@@ -80,3 +80,16 @@ model Ad {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 }
+
+model Area {
+  id        Int    @id @default(autoincrement())
+  area_name String @unique
+  cities    City[]
+}
+
+model City {
+  id        Int    @id @default(autoincrement())
+  city_name String
+  area      Area   @relation(fields: [area_id], references: [id])
+  area_id   Int
+}

@@ -200,7 +200,7 @@ const Footer = () => {
         </div>
 
         <div className="text-center mt-8 text-sm text-gray-600 dark:text-gray-400">
-          <p>© 2025, שירותי פרסום - פאבליש בורד</p>
+          <p>© 2025, שירותי פרסום - bOObies.co.il</p>
         </div>
       </div>
     </footer>

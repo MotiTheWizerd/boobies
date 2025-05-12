@@ -72,22 +72,28 @@ export default function Modal({
       aria-labelledby={title ? "modal-title" : undefined}
     >
       {/* Backdrop with blur effect */}
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true" />
-      
+      <div
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+        aria-hidden="true"
+      />
+
       {/* Modal content */}
       <div
         ref={modalRef}
-        className={`bg-white rounded-lg shadow-xl w-full ${sizeClasses[size]} overflow-hidden relative border border-gray-300 z-10`}
+        className={`bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full ${sizeClasses[size]} overflow-hidden relative border border-gray-300 dark:border-gray-700 z-10`}
       >
         {title && (
-          <div className="p-4 border-b border-gray-300 flex justify-between items-center bg-gray-50">
-            <h3 id="modal-title" className="text-lg font-semibold text-gray-900">
+          <div className="p-4 border-b border-gray-300 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-800">
+            <h3
+              id="modal-title"
+              className="text-lg font-semibold text-gray-900 dark:text-gray-100"
+            >
               {title}
             </h3>
             {!hideCloseButton && (
               <button
                 onClick={onClose}
-                className="text-gray-600 hover:text-gray-800 focus:outline-none"
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white focus:outline-none"
                 aria-label="Close modal"
               >
                 <X className="h-5 w-5" />
@@ -95,11 +101,9 @@ export default function Modal({
             )}
           </div>
         )}
-        
-        <div className="p-5 bg-white">
-          {children}
-        </div>
+
+        <div className="p-5 bg-white dark:bg-gray-900">{children}</div>
       </div>
     </div>
   );
-} 
+}
