@@ -56,6 +56,25 @@
   --button-shadow: 0 5px 15px rgba(255, 105, 180, 0.4);
   --animation-duration: 0.3s;
   --border-radius: 12px;
+
+  /* Added for card component theming */
+  --border: hsl(214.3, 31.8%, 91.4%); /* Light mode border */
+  --card: hsl(0, 0%, 100%); /* Light mode card background */
+  --card-foreground: hsl(222.2, 84%, 4.9%); /* Light mode card text */
+
+  /* Sonner toast custom theme - Enhanced */
+  --sonner-bg: var(--card, #fff);
+  --sonner-color: var(--card-foreground, #222);
+  --sonner-border: var(--border, #e5e7eb);
+  --sonner-success: var(--primary-color, #8a2be2);
+  --sonner-error: var(--secondary-color, #ff69b4);
+  --sonner-info: var(--accent-color, #00ffe1);
+  --sonner-warning: #f59e0b;
+  --sonner-border-radius: var(--border-radius, 12px);
+  --sonner-font-family: var(--font-open-sans, sans-serif);
+  --sonner-shadow: var(--card-shadow, 0 10px 30px -5px rgba(138, 43, 226, 0.2));
+  --sonner-toast-width: 356px;
+  --sonner-toast-animation-duration: var(--animation-duration, 0.3s);
 }
 
 @theme inline {
@@ -73,6 +92,21 @@
   --footer-bg: #181825;
   --card-shadow: 0 10px 30px -5px rgba(138, 43, 226, 0.3);
   --button-shadow: 0 5px 15px rgba(255, 105, 180, 0.3);
+
+  /* Added for card component theming */
+  --border: hsl(217.2, 32.6%, 17.5%); /* Dark mode border */
+  --card: hsl(224, 18%, 15%); /* Dark mode card background (e.g. #23232f) */
+  --card-foreground: hsl(210, 40%, 98%); /* Dark mode card text */
+
+  /* Sonner toast custom theme - Enhanced for dark mode */
+  --sonner-bg: var(--card, #23232f);
+  --sonner-color: var(--card-foreground, #fff);
+  --sonner-border: var(--border, #2d2d3f);
+  --sonner-success: var(--primary-color, #8a2be2);
+  --sonner-error: var(--secondary-color, #ff69b4);
+  --sonner-info: var(--accent-color, #00ffe1);
+  --sonner-warning: #f59e0b;
+  --sonner-shadow: var(--card-shadow, 0 10px 30px -5px rgba(138, 43, 226, 0.3));
 }
 
 @media (prefers-color-scheme: dark) {
@@ -83,7 +117,85 @@
     --footer-bg: #181825;
     --card-shadow: 0 10px 30px -5px rgba(138, 43, 226, 0.3);
     --button-shadow: 0 5px 15px rgba(255, 105, 180, 0.3);
+
+    /* Added for card component theming */
+    --border: hsl(217.2, 32.6%, 17.5%);
+    --card: hsl(224, 18%, 15%);
+    --card-foreground: hsl(210, 40%, 98%);
+
+    /* Sonner toast custom theme - Enhanced for dark mode */
+    --sonner-bg: var(--card, #23232f);
+    --sonner-color: var(--card-foreground, #fff);
+    --sonner-border: var(--border, #2d2d3f);
+    --sonner-success: var(--primary-color, #8a2be2);
+    --sonner-error: var(--secondary-color, #ff69b4);
+    --sonner-info: var(--accent-color, #00ffe1);
+    --sonner-warning: #f59e0b;
+    --sonner-shadow: var(
+      --card-shadow,
+      0 10px 30px -5px rgba(138, 43, 226, 0.3)
+    );
   }
+}
+
+/* Additional Sonner styling for better theme integration */
+.sonner-theme-custom .sonner-toast {
+  background: var(--sonner-bg) !important;
+  color: var(--sonner-color) !important;
+  border: 1px solid var(--sonner-border) !important;
+  box-shadow: var(--sonner-shadow) !important;
+  border-radius: var(--sonner-border-radius) !important;
+  font-family: var(--sonner-font-family) !important;
+  transition: all var(--animation-duration, 0.3s) ease !important;
+}
+
+.sonner-theme-custom .sonner-toast-success {
+  background: linear-gradient(
+      rgba(138, 43, 226, 0.05),
+      rgba(138, 43, 226, 0.05)
+    ),
+    var(--sonner-bg) !important;
+}
+
+.sonner-theme-custom .sonner-toast-error {
+  background: linear-gradient(
+      rgba(255, 105, 180, 0.05),
+      rgba(255, 105, 180, 0.05)
+    ),
+    var(--sonner-bg) !important;
+}
+
+.sonner-theme-custom .sonner-toast-info {
+  background: linear-gradient(rgba(0, 255, 225, 0.05), rgba(0, 255, 225, 0.05)),
+    var(--sonner-bg) !important;
+}
+
+.sonner-theme-custom .sonner-toast-warning {
+  background: linear-gradient(
+      rgba(245, 158, 11, 0.05),
+      rgba(245, 158, 11, 0.05)
+    ),
+    var(--sonner-bg) !important;
+}
+
+.sonner-theme-custom .sonner-loader {
+  border-color: var(--primary-color) transparent transparent transparent !important;
+}
+
+.sonner-theme-custom .sonner-toast-success [data-icon="success"] {
+  color: var(--primary-color) !important;
+}
+
+.sonner-theme-custom .sonner-toast-error [data-icon="error"] {
+  color: var(--secondary-color) !important;
+}
+
+.sonner-theme-custom .sonner-toast-info [data-icon="info"] {
+  color: var(--accent-color) !important;
+}
+
+.sonner-theme-custom .sonner-toast-warning [data-icon="warning"] {
+  color: var(--sonner-warning) !important;
 }
 
 /* Base Styles */

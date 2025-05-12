@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Open_Sans } from "next/font/google";
 import "./globals.css";
 import "./output.css";
 import { ThemeProvider } from "./components/ThemeToggle/ThemeProvider";
+import { CustomToaster } from "./components/CustomToaster";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +37,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${openSans.variable} antialiased ornamental-bg rtl-fix bg-background text-foreground`}
         style={{ direction: "rtl" }}
       >
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <CustomToaster />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

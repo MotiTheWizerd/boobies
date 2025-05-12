@@ -2,12 +2,15 @@
 import Head from "next/head";
 import AdForm from "../AdForm";
 import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
 export default function ManageAdsPage() {
   const router = useRouter();
   const params = useParams();
   const pageCampaignId = params.campaignId as string; // Extract campaignId from params
+  const searchParams = useSearchParams();
+  const adId = searchParams.get("ad_id");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,31 +48,53 @@ export default function ManageAdsPage() {
     };
 
     try {
-      const response = await fetch("/api/ads", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(submissionData), // Use submissionData
-      });
+      let response;
+      if (adId) {
+        // Edit mode: update existing ad
+        response = await fetch(`/api/ads/${adId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(submissionData),
+        });
+      } else {
+        // Create mode: create new ad
+        response = await fetch("/api/ads", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(submissionData),
+        });
+      }
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create ad");
+        throw new Error(
+          errorData.message ||
+            (adId ? "Failed to update ad" : "Failed to create ad")
+        );
       }
 
-      const createdAd = await response.json();
-      console.log("Ad created successfully:", createdAd);
+      const resultAd = await response.json();
+      console.log(
+        adId ? "Ad updated successfully:" : "Ad created successfully:",
+        resultAd
+      );
 
-      // Redirect to campaign page or ads list
-      if (data.campaignId) {
-        router.push(`/office/campaigns/${data.campaignId}`);
-      } else {
-        router.push("/office/campaigns");
-      }
+      // Show toast instead of redirect
+      toast.success(adId ? "המודעה עודכנה בהצלחה!" : "המודעה נוצרה בהצלחה!");
+      // Optionally, you can reset the form or update state here
     } catch (err: any) {
-      console.error("Error creating ad:", err);
-      setError(err.message || "An error occurred while creating the ad");
+      console.error(adId ? "Error updating ad:" : "Error creating ad:", err);
+      setError(
+        err.message ||
+          (adId
+            ? "An error occurred while updating the ad"
+            : "An error occurred while creating the ad")
+      );
+      toast.error(adId ? "שגיאה בעדכון המודעה" : "שגיאה ביצירת המודעה");
     } finally {
       setIsSubmitting(false);
     }
@@ -122,6 +147,7 @@ export default function ManageAdsPage() {
         onSubmit={handleAdSubmit}
         isSubmitting={isSubmitting}
         defaultValues={useTestData ? testData : { campaignId: pageCampaignId }}
+        ad_id={adId || undefined}
       />
     </main>
   );

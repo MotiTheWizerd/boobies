@@ -9,7 +9,6 @@ interface AdFormProps {
     name?: string;
     description?: string;
     shortDescription?: string;
-    imageUrl?: string;
     isHappyHour?: boolean;
     isHot?: boolean;
     isPremium?: boolean;
@@ -24,6 +23,7 @@ interface AdFormProps {
     whatsapp?: string;
     telegram?: string;
   };
+  ad_id?: string; // Optional ad_id for edit mode
 }
 
 const statusOptions = [
@@ -36,6 +36,7 @@ export default function AdForm({
   onSubmit,
   isSubmitting = false,
   defaultValues = {},
+  ad_id,
 }: AdFormProps) {
   const [form, setForm] = useState({
     name: defaultValues.name || "",
@@ -56,9 +57,48 @@ export default function AdForm({
     telegram: defaultValues.telegram || "",
   });
 
-  // Update form when defaultValues change
+  // Edit mode: fetch ad data if ad_id is provided
+  const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
   useEffect(() => {
-    console.log("AdForm useEffect, defaultValues:", defaultValues); // Debug log
+    if (!ad_id) return;
+    setLoading(true);
+    setFetchError(null);
+    fetch(`/api/ads/${ad_id}`)
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Failed to fetch ad details");
+        return res.json();
+      })
+      .then((data) => {
+        setForm({
+          name: data.name || "",
+          description: data.description || "",
+          shortDescription: data.shortDescription || "",
+          isHappyHour: data.isHappyHour || false,
+          isHot: data.isHot || false,
+          isPremium: data.isPremium || false,
+          priority: data.priority || false,
+          status: data.status || "active",
+          tags: data.tags ? data.tags.join(", ") : "",
+          campaignId: data.campaignId || "",
+          age: data.age || "",
+          country: data.country || "",
+          titsSize: data.titsSize || "",
+          mobile: data.mobile || "",
+          whatsapp: data.whatsapp || "",
+          telegram: data.telegram || "",
+        });
+      })
+      .catch((err) => {
+        setFetchError(err.message || "Error loading ad");
+      })
+      .finally(() => setLoading(false));
+  }, [ad_id]);
+
+  // Restore: update form when defaultValues change, but only if not in edit mode
+  useEffect(() => {
+    if (ad_id) return; // Don't override edit mode
     setForm({
       name: defaultValues.name || "",
       description: defaultValues.description || "",
@@ -77,7 +117,7 @@ export default function AdForm({
       whatsapp: defaultValues.whatsapp || "",
       telegram: defaultValues.telegram || "",
     });
-  }, [defaultValues]);
+  }, [defaultValues, ad_id]);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -114,8 +154,39 @@ export default function AdForm({
         .map((t) => t.trim())
         .filter(Boolean),
     };
-    onSubmit(data);
+    // If in edit mode, call update API directly here
+    if (ad_id) {
+      // PUT/PATCH to update ad
+      fetch(`/api/ads/${ad_id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+        .then(async (res) => {
+          if (!res.ok) throw new Error("Failed to update ad");
+          return res.json();
+        })
+        .then((updatedAd) => {
+          onSubmit(updatedAd); // Let parent handle redirect or message
+        })
+        .catch((err) => {
+          setErrors({ general: err.message || "Error updating ad" });
+        });
+    } else {
+      onSubmit(data);
+    }
   };
+
+  if (loading) {
+    return <div className="p-6 text-center">טוען נתוני מודעה...</div>;
+  }
+  if (fetchError) {
+    return (
+      <div className="p-6 text-center text-red-500">
+        שגיאה בטעינת נתוני מודעה: {fetchError}
+      </div>
+    );
+  }
 
   return (
     <form
@@ -126,10 +197,12 @@ export default function AdForm({
         {/* Form Header */}
         <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
           <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">
-            יצירת מודעה חדשה
+            {ad_id ? "עריכת מודעה" : "יצירת מודעה חדשה"}
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            מלא את הפרטים ליצירת מודעה חדשה במערכת
+            {ad_id
+              ? "ערוך את פרטי המודעה"
+              : "מלא את הפרטים ליצירת מודעה חדשה במערכת"}
           </p>
         </div>
 

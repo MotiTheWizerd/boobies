@@ -37,17 +37,12 @@ const CampaignActions = ({ campaign, onDelete }: CampaignActionsProps) => {
     {
       icon: <Edit className="h-4 w-4" />,
       label: "צור מודעה חדשה",
-      href: `/office/campaigns/${campaign.id}`,
+      href: `/office/campaigns/manage_ads/${campaign.id}`,
     },
     {
       icon: <Edit className="h-4 w-4" />,
-      label: "ערוך",
-      href: `/office/campaigns/${campaign.id}`,
-    },
-    {
-      icon: <FilePlusIcon className="h-4 w-4" />,
-      label: "הוסף מודעות",
-      href: `/office/campaigns/manage_ads/${campaign.id}`,
+      label: "רשימת מודעות",
+      href: `/office/campaigns/ads/ads_list/${campaign.id}`,
     },
     {
       icon: <Trash className="h-4 w-4" />,

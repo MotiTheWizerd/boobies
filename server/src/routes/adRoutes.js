@@ -113,9 +113,9 @@ router.post(
       return res.status(404).json({ message: "Campaign not found" });
     }
 
-    // Create images array if imageUrl is provided
-    const images = imageUrl ? [{ title: name }] : null;
-
+    // Use images from req.body directly
+    const images = req.body.images || null;
+    console.log("test");
     // Create the ad
     const ad = await prisma.ad.create({
       data: {
@@ -200,11 +200,8 @@ router.put(
       }
     }
 
-    // Create images array if imageUrl is provided
-    let images = undefined;
-    if (imageUrl !== undefined) {
-      images = imageUrl ? [{ title: name || existingAd.name }] : null;
-    }
+    // Use images from req.body directly
+    let images = req.body.images;
 
     // Update the ad
     const ad = await prisma.ad.update({
