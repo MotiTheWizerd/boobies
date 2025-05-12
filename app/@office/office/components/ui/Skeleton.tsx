@@ -1,4 +1,4 @@
-import { cn } from "../../../../app/utils/cn";
+import { cn } from "../../../../../app/utils/cn";
 
 function Skeleton({
   className,
@@ -12,4 +12,4 @@ function Skeleton({
   );
 }
 
-export { Skeleton }; 
+export { Skeleton };

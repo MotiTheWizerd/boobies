@@ -1,14 +1,11 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
-import Header from "./components/Header";
-import MainMenu from "./components/MainMenu";
-import SecondaryMenu from "./components/MainMenu/SecondaryMenu";
-import HotProfiles from "./components/HotProfiles";
-import FeaturedProfiles from "./components/FeaturedProfiles";
-import Footer from "./components/Footer";
-import { pageTransition } from "./utils/animations";
-import { ThemeProvider } from "./components/ThemeToggle/ThemeProvider";
+import SecondaryMenu from "@/components/MainMenu/SecondaryMenu";
+import HotProfiles from "@/components/HotProfiles";
+import FeaturedProfiles from "@/components/FeaturedProfiles";
+import { pageTransition } from "@/app/utils/animations";
+import { ThemeProvider } from "@/components/ThemeToggle/ThemeProvider";
 
 export default function Home() {
   return (

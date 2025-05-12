@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import HotProfileCard from "./HotProfileCard";
-import { useHotProfiles, HotProfileProps } from "../../hooks/useHotProfiles";
+import { useHotProfiles, HotProfileProps } from "@/app/hooks/useHotProfiles";
 import { useInView } from "react-intersection-observer";
 // Note: The following import is commented out since we haven't installed the package yet
 // import { Virtuoso } from "react-virtuoso";

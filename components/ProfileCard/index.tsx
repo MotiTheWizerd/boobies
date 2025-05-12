@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import PlaceholderImage from "../Common/PlaceholderImage";
-import { profileCardAnimation } from "../../utils/animations";
+import { profileCardAnimation } from "@/app/utils/animations";
 import { FaFire, FaCrown, FaStar, FaHourglassHalf } from "react-icons/fa";
 
 interface ProfileCardProps {

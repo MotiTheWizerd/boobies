@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Areas from "../../../components/Areas/Areas";
+import Areas from "@/components/Areas/Areas";
 
 interface AdFormProps {
   onSubmit: (data: any) => void;

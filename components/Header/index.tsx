@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import PlaceholderImage from "../Common/PlaceholderImage";
-import { buttonAnimation, slideDown } from "../../utils/animations";
+import { buttonAnimation, slideDown } from "@/app/utils/animations";
 import ThemeToggle from "../ThemeToggle";
 
 const Header = () => {

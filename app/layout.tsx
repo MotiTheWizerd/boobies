@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Open_Sans } from "next/font/google";
-import "./globals.css";
-import "./output.css";
-import { ThemeProvider } from "./components/ThemeToggle/ThemeProvider";
-import { CustomToaster } from "./components/CustomToaster";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-import MainMenu from "./components/MainMenu";
+import "@/app/globals.css";
+import "@/app/output.css";
+import { ThemeProvider } from "@/components/ThemeToggle/ThemeProvider";
+import { CustomToaster } from "@/components/CustomToaster";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import MainMenu from "@/components/MainMenu";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,22 +30,28 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+  office,
+}: {
   children: React.ReactNode;
-}>) {
+  office: React.ReactNode;
+}) {
   return (
     <html lang="he" dir="rtl" style={{ direction: "rtl" }}>
-      <head></head>
+      <head />
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${openSans.variable} antialiased ornamental-bg rtl-fix bg-background text-foreground`}
         style={{ direction: "rtl" }}
       >
         <ThemeProvider>
           <CustomToaster />
-          <Header />
-          <MainMenu />
-          {children}
-          <Footer />
+          {office || (
+            <>
+              <Header />
+              <MainMenu />
+              {children}
+              <Footer />
+            </>
+          )}
         </ThemeProvider>
       </body>
     </html>

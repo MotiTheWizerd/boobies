@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Modal from "@/app/components/Common/Modal";
+import Modal from "@/components/Common/Modal";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 import { Campaign } from "../types"; // Adjust path as necessary
 
