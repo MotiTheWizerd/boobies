@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import CampaignsTable from "./components/CampaignsTable";
-import StatsOverview from "./components/StatsOverview";
-import SearchFilters from "./components/SearchFilters";
-import ErrorMessage from "./components/ErrorMessage";
-import LoadingSpinner from "./components/LoadingSpinner";
+import CampaignsTable from "@/app/office/campaigns/components/CampaignsTable";
+import StatsOverview from "@/app/office/campaigns/components/StatsOverview";
+import SearchFilters from "@/app/office/campaigns/components/SearchFilters";
+import ErrorMessage from "@/app/office/campaigns/components/ErrorMessage";
+import LoadingSpinner from "@/app/office/campaigns/components/LoadingSpinner";
 
 // Campaign type definition based on the API
 interface Client {

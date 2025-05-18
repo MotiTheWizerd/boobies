@@ -4,8 +4,8 @@ import "@/app/globals.css";
 import "@/app/output.css";
 import { ThemeProvider } from "@/components/ThemeToggle/ThemeProvider";
 import { CustomToaster } from "@/components/CustomToaster";
-import AdminHeader from "@/app/@office/office/components/Header/AdminHeader";
-import AdminSidebar from "@/app/@office/office/components/Sidebar/AdminSidebar";
+import AdminHeader from "@/app/office/components/Header/AdminHeader";
+import AdminSidebar from "@/app/office/components/Sidebar/AdminSidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,12 +27,15 @@ export const metadata: Metadata = {
   description: "אזור ניהול למשרד באתר bOObies.co.il",
 };
 
-console.log("test");
 export default function OfficeLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  if (!children) {
+    return null;
+  }
+
   return (
     <div
       className={`${geistSans.variable} ${geistMono.variable} ${openSans.variable} antialiased rtl-fix bg-background text-foreground`}
@@ -43,11 +46,7 @@ export default function OfficeLayout({
         <CustomToaster />
         <div className="flex w-full">
           <AdminSidebar />
-          <div className="flex-1">
-            {children}
-
-            {children}
-          </div>
+          <div className="flex-1 p-6">{children}</div>
         </div>
       </ThemeProvider>
     </div>

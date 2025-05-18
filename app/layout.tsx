@@ -30,10 +30,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-  office,
 }: {
   children: React.ReactNode;
-  office: React.ReactNode;
 }) {
   return (
     <html lang="he" dir="rtl" style={{ direction: "rtl" }}>
@@ -44,14 +42,10 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <CustomToaster />
-          {office || (
-            <>
-              <Header />
-              <MainMenu />
-              {children}
-              <Footer />
-            </>
-          )}
+          <Header />
+          <MainMenu />
+          {children}
+          <Footer />
         </ThemeProvider>
       </body>
     </html>

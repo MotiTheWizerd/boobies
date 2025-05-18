@@ -1,10 +1,19 @@
 "use client";
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/Card";
-import { BarChart, LineChart, PieChart } from "./components/Dashboard/Charts";
-import { Calendar } from "./components/ui/Calendar";
-import DashboardStats from "./components/Dashboard/DashboardStats";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/app/office/components/ui/Card";
+import {
+  BarChart,
+  LineChart,
+  PieChart,
+} from "@/app/office/components/Dashboard/Charts";
+import { Calendar } from "@/app/office/components/ui/Calendar";
+import DashboardStats from "@/app/office/components/Dashboard/DashboardStats";
 
 export default function AdminDashboard() {
   return (
@@ -48,7 +57,10 @@ export default function AdminDashboard() {
             <CardTitle>לוח שנה</CardTitle>
           </CardHeader>
           <CardContent>
-            <Calendar mode="single" className="rounded-md border border-gray-700 text-gray-100" />
+            <Calendar
+              mode="single"
+              className="rounded-md border border-gray-700 text-gray-100"
+            />
           </CardContent>
         </Card>
 
@@ -59,9 +71,14 @@ export default function AdminDashboard() {
           <CardContent>
             <ul className="space-y-2">
               {[1, 2, 3, 4, 5].map((item) => (
-                <li key={item} className="p-3 bg-gray-800 rounded-md shadow-sm border border-gray-700">
+                <li
+                  key={item}
+                  className="p-3 bg-gray-800 rounded-md shadow-sm border border-gray-700"
+                >
                   <div className="flex justify-between">
-                    <span className="font-medium text-gray-100">משימה {item}</span>
+                    <span className="font-medium text-gray-100">
+                      משימה {item}
+                    </span>
                     <span className="text-sm text-gray-400">
                       לפני {item} ימים
                     </span>

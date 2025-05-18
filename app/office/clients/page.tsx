@@ -20,15 +20,14 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
-import Modal from "@/app/components/Common/Modal";
+import Modal from "@/components/Common/Modal";
 import { Client, Campaign } from "./types"; // IMPORT NEW TYPES
-import PageHeader from "./components/PageHeader"; // IMPORT PageHeader
+import PageHeader from "@/app/office/clients/components/PageHeader"; // IMPORT PageHeader
 import ClientFilters from "./components/ClientFilters"; // IMPORT ClientFilters
 import ClientTable from "./components/ClientTable"; // IMPORT ClientTable
 import NewClientModal from "./components/NewClientModal"; // IMPORT NewClientModal
 import NewCampaignModal from "./components/NewCampaignModal"; // IMPORT NewCampaignModal
-import DeleteCampaignModal from "./components/DeleteCampaignModal"; // IMPORT DeleteCampaignModal
-
+import DeleteCampaignModal from "./components/DeleteCampaignModal"; // ADD THIS IMPORT
 // Update the dropdown styles to use fixed positioning and click events
 const dropdownStyles = `
   .dropdown-wrapper {

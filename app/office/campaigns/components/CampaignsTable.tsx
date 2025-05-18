@@ -1,9 +1,11 @@
 import React from "react";
 import { format } from "date-fns";
 import Link from "next/link";
-import { Badge } from "../../components/ui/Badge";
+import { Badge } from "@/app/office/components/ui/Badge";
 import { FilePlus } from "lucide-react";
-import DropdownMenu, { MenuItem } from "../../components/ui/DropdownMenu";
+import DropdownMenu, {
+  MenuItem,
+} from "@/app/office/components/ui/DropdownMenu";
 import { Edit, Trash, FilePlus as FilePlusIcon } from "lucide-react";
 
 // Types from the parent component

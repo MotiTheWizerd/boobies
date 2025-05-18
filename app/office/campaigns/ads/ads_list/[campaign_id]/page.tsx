@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
-import { Badge } from "../../../../components/ui/Badge";
+import { Badge } from "@/app/office/components/ui/Badge";
 import { format } from "date-fns";
 import { FileEdit, Trash2 } from "lucide-react";
 import Link from "next/link";

@@ -5,7 +5,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "../../components/ui/Card";
+} from "@/app/office/components/ui/Card";
 import { Skeleton } from "../../components/ui/Skeleton";
 
 interface Campaign {
