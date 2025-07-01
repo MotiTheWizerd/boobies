@@ -53,6 +53,11 @@ model Campaign {
   ads           Ad[]
 }
 
+enum ServiceType {
+  INCALL  // ליווי
+  OUTCALL // דירה
+}
+
 model Ad {
   id            String     @id @default(uuid())
   name          String
@@ -77,14 +82,19 @@ model Ad {
   campaign      Campaign   @relation(fields: [campaignId], references: [id])
   campaignId    String
   tags          String[]   @default([])
+  areas         AdArea[]   // Relation to AdArea join table
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
+  service_type  ServiceType @default(INCALL)
 }
 
+
+
 model Area {
-  id        Int    @id @default(autoincrement())
-  area_name String @unique
+  id        Int      @id @default(autoincrement())
+  area_name String   @unique
   cities    City[]
+  ads       AdArea[]
 }
 
 model City {
@@ -92,4 +102,16 @@ model City {
   city_name String
   area      Area   @relation(fields: [area_id], references: [id])
   area_id   Int
+}
+
+model AdArea {
+  id        String   @id @default(uuid())
+  ad        Ad       @relation(fields: [adId], references: [id], onDelete: Cascade)
+  adId      String
+  area      Area     @relation(fields: [areaId], references: [id])
+  areaId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([adId, areaId])
 }
