@@ -25,13 +25,24 @@ router.get(
             campaign_name: true,
           },
         },
+        areas: {
+          include: {
+            area: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    res.status(200).json(ads);
+    // Transform the response to include areaIds array for each ad
+    const adsWithAreaIds = ads.map(ad => ({
+      ...ad,
+      areaIds: ad.areas.map(adArea => adArea.areaId.toString()),
+    }));
+
+    res.status(200).json(adsWithAreaIds);
   })
 );
 
@@ -60,6 +71,11 @@ router.get(
             },
           },
         },
+        areas: {
+          include: {
+            area: true,
+          },
+        },
       },
     });
 
@@ -67,7 +83,13 @@ router.get(
       return res.status(404).json({ message: "Ad not found" });
     }
 
-    res.status(200).json(ad);
+    // Transform the response to include areaIds array
+    const response = {
+      ...ad,
+      areaIds: ad.areas.map(adArea => adArea.areaId.toString()),
+    };
+
+    res.status(200).json(response);
   })
 );
 
@@ -116,7 +138,7 @@ router.post(
     // Use images from req.body directly
     const images = req.body.images || null;
     console.log("test");
-    // Create the ad
+    // First create the ad
     const ad = await prisma.ad.create({
       data: {
         name,
@@ -149,7 +171,39 @@ router.post(
       },
     });
 
-    res.status(201).json(ad);
+    // Then create AdArea records if areaIds are provided
+    if (req.body.areaIds && Array.isArray(req.body.areaIds) && req.body.areaIds.length > 0) {
+      await prisma.adArea.createMany({
+        data: req.body.areaIds.map(areaId => ({
+          adId: ad.id,
+          areaId: parseInt(areaId, 10)
+        })),
+        skipDuplicates: true,
+      });
+    }
+
+    // Fetch the ad with its areas
+    const adWithAreas = await prisma.ad.findUnique({
+      where: { id: ad.id },
+      include: {
+        campaign: {
+          select: {
+            id: true,
+            campaign_name: true,
+          },
+        },
+        areas: {
+          include: {
+            area: true,
+          },
+        },
+      },
+    });
+
+    res.status(201).json({
+      ...adWithAreas,
+      areaIds: adWithAreas.areas.map(adArea => adArea.areaId.toString()),
+    });
   })
 );
 
@@ -203,34 +257,66 @@ router.put(
     // Use images from req.body directly
     let images = req.body.images;
 
-    // Update the ad
-    const ad = await prisma.ad.update({
+    // Start a transaction to update both ad and areas
+    const [ad] = await prisma.$transaction([
+      // Update the ad
+      prisma.ad.update({
+        where: { id },
+        data: {
+          name: name !== undefined ? name : undefined,
+          description: description !== undefined ? description : undefined,
+          shortDescription:
+            shortDescription !== undefined ? shortDescription : undefined,
+          images,
+          isHappyHour: isHappyHour !== undefined ? isHappyHour : undefined,
+          isHot: isHot !== undefined ? isHot : undefined,
+          isPremium: isPremium !== undefined ? isPremium : undefined,
+          priority: priority !== undefined ? priority : undefined,
+          status: status !== undefined ? status : undefined,
+          age: age !== undefined ? (age ? parseInt(age) : null) : undefined,
+          country: country !== undefined ? country : undefined,
+          titsSize: titsSize !== undefined ? titsSize : undefined,
+          mobile: mobile !== undefined ? mobile : undefined,
+          whatsapp: whatsapp !== undefined ? whatsapp : undefined,
+          telegram: telegram !== undefined ? telegram : undefined,
+          campaign: campaignId
+            ? {
+                connect: { id: campaignId },
+              }
+            : undefined,
+          tags:
+            tags !== undefined ? (Array.isArray(tags) ? tags : []) : undefined,
+        },
+        include: {
+          campaign: {
+            select: {
+              id: true,
+              campaign_name: true,
+            },
+          },
+        },
+      }),
+      // Delete existing AdArea records for this ad
+      prisma.adArea.deleteMany({
+        where: { adId: id },
+      }),
+      // Create new AdArea records if areaIds are provided
+      ...(req.body.areaIds && Array.isArray(req.body.areaIds) && req.body.areaIds.length > 0
+        ? [
+            prisma.adArea.createMany({
+              data: req.body.areaIds.map(areaId => ({
+                adId: id,
+                areaId: parseInt(areaId, 10)
+              })),
+              skipDuplicates: true,
+            })
+          ]
+        : [])
+    ]);
+
+    // Fetch the ad with its areas to return complete data
+    const adWithAreas = await prisma.ad.findUnique({
       where: { id },
-      data: {
-        name: name !== undefined ? name : undefined,
-        description: description !== undefined ? description : undefined,
-        shortDescription:
-          shortDescription !== undefined ? shortDescription : undefined,
-        images,
-        isHappyHour: isHappyHour !== undefined ? isHappyHour : undefined,
-        isHot: isHot !== undefined ? isHot : undefined,
-        isPremium: isPremium !== undefined ? isPremium : undefined,
-        priority: priority !== undefined ? priority : undefined,
-        status: status !== undefined ? status : undefined,
-        age: age !== undefined ? (age ? parseInt(age) : null) : undefined,
-        country: country !== undefined ? country : undefined,
-        titsSize: titsSize !== undefined ? titsSize : undefined,
-        mobile: mobile !== undefined ? mobile : undefined,
-        whatsapp: whatsapp !== undefined ? whatsapp : undefined,
-        telegram: telegram !== undefined ? telegram : undefined,
-        campaign: campaignId
-          ? {
-              connect: { id: campaignId },
-            }
-          : undefined,
-        tags:
-          tags !== undefined ? (Array.isArray(tags) ? tags : []) : undefined,
-      },
       include: {
         campaign: {
           select: {
@@ -238,10 +324,18 @@ router.put(
             campaign_name: true,
           },
         },
+        areas: {
+          include: {
+            area: true,
+          },
+        },
       },
     });
 
-    res.status(200).json(ad);
+    res.status(200).json({
+      ...adWithAreas,
+      areaIds: adWithAreas.areas.map(adArea => adArea.areaId.toString()),
+    });
   })
 );
 
