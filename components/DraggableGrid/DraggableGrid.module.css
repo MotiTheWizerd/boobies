@@ -1,0 +1,490 @@
+/* Container */
+.container {
+  width: 100%;
+}
+
+/* Grid layout */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  position: relative;
+}
+
+/* Horizontal layout */
+.horizontal {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+/* Item */
+.item {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--bg-secondary, #f9fafb);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  will-change: transform, opacity;
+  touch-action: none;
+}
+
+.item:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.item.dragging {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  opacity: 0.8;
+  z-index: 10;
+  transform: scale(1.02);
+}
+
+/* Drag overlay */
+.dragOverlay {
+  z-index: 999;
+}
+
+.overlayItem {
+  transform: scale(1.05);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  opacity: 0.9;
+  pointer-events: none;
+  cursor: grabbing;
+  border: 2px solid var(--color-primary, #3b82f6);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+/* Drag handle */
+.dragHandle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary, #64748b);
+  cursor: grab;
+  padding: 0.5rem;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.dragHandle:hover {
+  opacity: 1;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+/* Upload area styles */
+.uploadArea {
+  border: 2px dashed #e2e8f0;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: var(--bg-secondary, #f9fafb);
+}
+
+.uploadArea:hover {
+  border-color: #94a3b8;
+  background-color: rgba(148, 163, 184, 0.05);
+}
+
+.uploadArea.dragging {
+  border-color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.uploadIcon {
+  font-size: 2rem;
+  color: #64748b;
+  margin-bottom: 0.75rem;
+}
+
+.uploadText {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-primary, #1e293b);
+}
+
+.uploadInfo {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-top: 0.5rem;
+}
+
+.uploadInfoSecondary {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  margin-top: 0.25rem;
+  max-width: 90%;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.fileInput {
+  display: none;
+}
+
+/* Helper text */
+.helperText {
+  text-align: center;
+  margin-bottom: 10px;
+  color: var(--color-text-secondary, #64748b);
+  font-size: 0.875rem;
+  background-color: rgba(59, 130, 246, 0.1);
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+
+/* Image item styles */
+.imageItem {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--bg-secondary, #f9fafb);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  will-change: transform, opacity;
+  touch-action: none;
+}
+
+.imageItem:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.imageItem.dragging {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  opacity: 0.8;
+  z-index: 10;
+  transform: scale(1.02);
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  background-color: #f8fafc;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+/* Delete button */
+.deleteButton {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: rgba(51, 65, 85, 0.8);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease;
+  opacity: 0;
+}
+
+.imageContainer:hover .deleteButton,
+.hovering .deleteButton {
+  opacity: 1;
+}
+
+.deleteButton:hover {
+  transform: translateY(-50%) scale(1.1);
+  background-color: rgba(239, 68, 68, 0.9);
+}
+
+.deleteButton:active {
+  transform: translateY(-50%) scale(0.95);
+  background-color: rgba(185, 28, 28, 0.9);
+}
+
+/* Image and Video styles */
+.image {
+  object-fit: cover;
+  transition: opacity 0.2s ease;
+}
+
+.video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: #000;
+  z-index: 10;
+}
+
+/* Video-specific styles */
+.videoItem {
+  background-color: #000;
+}
+
+.videoWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+  z-index: 5;
+}
+
+.videoPlayButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50px;
+  height: 50px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  transition: all 0.3s ease;
+  z-index: 3;
+  opacity: 1;
+}
+
+.videoWrapper:hover .videoPlayButton {
+  opacity: 1;
+}
+
+.videoPlayButton:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  background-color: rgba(0, 0, 0, 0.8);
+  border-color: white;
+}
+
+.videoPlayButton.fadeOut {
+  opacity: 0;
+}
+
+.videoWrapper.playing:hover .videoPlayButton.fadeOut {
+  opacity: 0.6;
+}
+
+.videoDuration {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  z-index: 3;
+}
+
+.videoDuration svg {
+  opacity: 0.7;
+}
+
+/* Edit controls */
+.controls {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background-color: var(--bg-tertiary, #f1f5f9);
+  border-top: 1px solid rgba(226, 232, 240, 0.5);
+}
+
+.editButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0ea5e9;
+  position: relative;
+}
+
+.editButton:hover {
+  background-color: rgba(241, 245, 249, 0.5);
+}
+
+.editForm {
+  width: 100%;
+  padding: 0.5rem 0;
+}
+
+.altTextInput {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  background-color: var(--bg-accent, #fff);
+  color: var(--color-text-primary, #1e293b);
+}
+
+.editButtons {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cancelButton,
+.saveButton {
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.cancelButton {
+  background-color: transparent;
+  border: 1px solid #e2e8f0;
+  color: var(--color-text-secondary, #64748b);
+}
+
+.saveButton {
+  background-color: #3b82f6;
+  border: 1px solid #3b82f6;
+  color: white;
+}
+
+.cancelButton:hover {
+  background-color: #f1f5f9;
+}
+
+.saveButton:hover {
+  background-color: #2563eb;
+}
+
+/* Main badge styles */
+.mainBadge {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  z-index: 2;
+}
+
+/* Screen reader only */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Tooltip for edit button */
+.tooltipText {
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(51, 65, 85, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 30;
+}
+
+.tooltipText::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 0 5px 5px 5px;
+  border-style: solid;
+  border-color: transparent transparent rgba(51, 65, 85, 0.9) transparent;
+}
+
+.editButton:hover .tooltipText {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Hovering state */
+.hovering {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+/* Focus styles for better keyboard navigation */
+.altTextInput:focus,
+.editButton:focus,
+.deleteButton:focus,
+.cancelButton:focus,
+.saveButton:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .imageContainer {
+    height: 120px;
+  }
+
+  .uploadArea {
+    padding: 1.5rem 1rem;
+  }
+}

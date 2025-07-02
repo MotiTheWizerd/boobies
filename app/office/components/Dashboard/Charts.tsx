@@ -23,7 +23,7 @@ export function LineChart() {
       </div>
       
       {/* X-axis labels */}
-      <div className="grid grid-cols-7 mt-2 text-xs text-gray-400">
+      <div className="grid grid-cols-7 mt-2 text-xs text-gray-600 dark:text-gray-400">
         {['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'].map((day, i) => (
           <div key={i} className="text-center">{day}</div>
         ))}
@@ -51,7 +51,7 @@ export function BarChart() {
               className={`w-full ${bar.color} rounded-t-sm`} 
               style={{ height: `${bar.value}%` }}
             ></div>
-            <div className="text-xs mt-2 text-gray-400">{bar.label}</div>
+            <div className="text-xs mt-2 text-gray-600 dark:text-gray-400">{bar.label}</div>
           </div>
         ))}
       </div>
@@ -73,7 +73,7 @@ export function PieChart() {
       </svg>
       
       {/* Simple legend */}
-      <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs text-gray-300">
+      <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs text-gray-700 dark:text-gray-300">
         <div className="flex flex-col items-center">
           <div className="w-3 h-3 rounded-full bg-indigo-500"></div>
           <span className="mt-1">40%</span>

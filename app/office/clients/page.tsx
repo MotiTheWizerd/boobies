@@ -40,10 +40,10 @@ const dropdownStyles = `
     z-index: 9999;
     min-width: 16rem;
     padding: 0.5rem 0;
-    background-color: white;
+    background-color: var(--background);
     border-radius: 0.375rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border);
   }
   
   .dropdown-trigger {
@@ -332,14 +332,14 @@ export default function ClientsPage() {
 
       {/* Error message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-800 rounded-md p-4">
+        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-800 dark:text-red-300 rounded-md p-4">
           {error}
         </div>
       )}
 
       {/* Loading state */}
       {loading ? (
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8 flex justify-center">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm p-8 flex justify-center">
           <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
         </div>
       ) : (

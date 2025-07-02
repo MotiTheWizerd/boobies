@@ -38,15 +38,17 @@ export default function OfficeLayout({
 
   return (
     <div
-      className={`${geistSans.variable} ${geistMono.variable} ${openSans.variable} antialiased rtl-fix bg-background text-foreground`}
+      className={`${geistSans.variable} ${geistMono.variable} ${openSans.variable} antialiased rtl-fix`}
       dir="rtl"
     >
       <ThemeProvider>
-        <AdminHeader />
-        <CustomToaster />
-        <div className="flex w-full">
-          <AdminSidebar />
-          <div className="flex-1 p-6">{children}</div>
+        <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+          <AdminHeader />
+          <CustomToaster />
+          <div className="flex w-full">
+            <AdminSidebar />
+            <div className="flex-1 p-6">{children}</div>
+          </div>
         </div>
       </ThemeProvider>
     </div>

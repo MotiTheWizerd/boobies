@@ -103,10 +103,10 @@ export function Calendar({
           onClick={() => handleDateSelect(day)}
           className={`h-10 w-10 rounded-full flex items-center justify-center text-sm ${
             isSelected
-              ? "bg-indigo-600 text-white"
+              ? "bg-indigo-600 dark:bg-indigo-600 text-white"
               : isToday
-              ? "bg-indigo-900/30 text-indigo-300"
-              : "hover:bg-gray-700 text-gray-300"
+              ? "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
+              : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
           }`}
         >
           {day}
@@ -118,20 +118,20 @@ export function Calendar({
   };
 
   return (
-    <div className={`p-3 bg-gray-850 rounded-md text-gray-200 ${className}`}>
+    <div className={`p-3 bg-white dark:bg-gray-850 rounded-md text-gray-800 dark:text-gray-200 ${className}`}>
       <div className="flex justify-between items-center mb-4">
         <button
           onClick={handlePrevMonth}
-          className="p-2 hover:bg-gray-700 rounded-full transition-colors text-gray-400 hover:text-white"
+          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
         >
           <ChevronRight className="h-5 w-5" />
         </button>
-        <div className="font-medium text-gray-100">
+        <div className="font-medium text-gray-900 dark:text-gray-100">
           {hebrewMonths[viewDate.getMonth()]} {viewDate.getFullYear()}
         </div>
         <button
           onClick={handleNextMonth}
-          className="p-2 hover:bg-gray-700 rounded-full transition-colors text-gray-400 hover:text-white"
+          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
@@ -141,7 +141,7 @@ export function Calendar({
         {hebrewDays.map((day, i) => (
           <div
             key={i}
-            className="h-10 w-10 flex items-center justify-center text-xs text-gray-400"
+            className="h-10 w-10 flex items-center justify-center text-xs text-gray-600 dark:text-gray-400"
           >
             {day}
           </div>

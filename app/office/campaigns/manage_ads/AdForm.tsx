@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Areas from "@/components/Areas/Areas";
+import MultiSelectAreas from "@/components/Areas/MultiSelectAreas";
+import FileUpload from "../../../../components/Upload/FileUpload";
 
 interface AdFormProps {
   onSubmit: (data: any) => void;
@@ -23,7 +24,9 @@ interface AdFormProps {
     mobile?: string;
     whatsapp?: string;
     telegram?: string;
-    areaId?: string | number;
+    areaIds?: (string | number)[];
+    files?: File[];
+    defaultFileName?: string;
   };
   ad_id?: string; // Optional ad_id for edit mode
 }
@@ -57,7 +60,9 @@ export default function AdForm({
     mobile: defaultValues.mobile || "",
     whatsapp: defaultValues.whatsapp || "",
     telegram: defaultValues.telegram || "",
-    areaId: defaultValues.areaId || "",
+    areaIds: defaultValues.areaIds || [],
+    files: defaultValues.files || [],
+    defaultFileName: "",
   });
 
   // Edit mode: fetch ad data if ad_id is provided
@@ -74,6 +79,18 @@ export default function AdForm({
         return res.json();
       })
       .then((data) => {
+        console.log('Fetched ad data:', data); // Debug log
+        
+        // Extract areaIds from the response and ensure they are strings
+        let areaIds: string[] = [];
+        if (data.areas && Array.isArray(data.areas)) {
+          areaIds = data.areas.map((adArea: any) => adArea.areaId?.toString() || '').filter(Boolean);
+        } else if (data.areaIds && Array.isArray(data.areaIds)) {
+          areaIds = data.areaIds.map((id: any) => id?.toString() || '').filter(Boolean);
+        }
+        
+        console.log('Extracted areaIds:', areaIds); // Debug log
+        
         setForm({
           name: data.name || "",
           description: data.description || "",
@@ -83,18 +100,22 @@ export default function AdForm({
           isPremium: data.isPremium || false,
           priority: data.priority || false,
           status: data.status || "active",
-          tags: data.tags ? data.tags.join(", ") : "",
+          tags: data.tags ? (Array.isArray(data.tags) ? data.tags.join(", ") : data.tags) : "",
           campaignId: data.campaignId || "",
-          age: data.age || "",
+          age: data.age ? data.age.toString() : "",
           country: data.country || "",
           titsSize: data.titsSize || "",
           mobile: data.mobile || "",
           whatsapp: data.whatsapp || "",
           telegram: data.telegram || "",
-          areaId: data.areaId || "",
+          areaIds: areaIds,
+          files: [], // Files will be handled separately in edit mode
+          defaultFileName: data.images && data.images.length > 0 ? 
+            data.images.find((img: any) => img.isDefault)?.fileName || data.images[0]?.fileName || "" : ""
         });
       })
       .catch((err) => {
+        console.error('Error fetching ad:', err);
         setFetchError(err.message || "Error loading ad");
       })
       .finally(() => setLoading(false));
@@ -120,7 +141,9 @@ export default function AdForm({
       mobile: defaultValues.mobile || "",
       whatsapp: defaultValues.whatsapp || "",
       telegram: defaultValues.telegram || "",
-      areaId: defaultValues.areaId || "",
+      areaIds: defaultValues.areaIds || [],
+      files: defaultValues.files || [],
+      defaultFileName: defaultValues.defaultFileName || "",
     });
   }, [defaultValues, ad_id]);
 
@@ -131,7 +154,7 @@ export default function AdForm({
     if (!form.name.trim()) newErrors.name = "שדה חובה";
     if (!form.status) newErrors.status = "שדה חובה";
     if (!form.campaignId) newErrors.campaignId = "חובה לבחור קמפיין";
-    if (!form.areaId) newErrors.areaId = "חובה לבחור אזור";
+    if (!form.areaIds || form.areaIds.length === 0) newErrors.areaIds = "חובה לבחור לפחות אזור אחד";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -150,45 +173,143 @@ export default function AdForm({
     }));
   };
 
-  const handleAreaChange = (areaIdValue: string | number) => {
+  const handleAreaChange = (areaIdsValue: (string | number)[]) => {
+    // Convert all area IDs to strings to ensure consistent type
+    const stringAreaIds = areaIdsValue.map(id => id.toString());
     setForm((prev) => ({
       ...prev,
-      areaId: areaIdValue,
+      areaIds: stringAreaIds,
     }));
-    if (errors.areaId) {
-      setErrors((prev) => ({ ...prev, areaId: "" }));
+    if (errors.areaIds) {
+      setErrors((prev) => ({ ...prev, areaIds: "" }));
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFilesChange = (files: File[]) => {
+    setForm((prev) => ({
+      ...prev,
+      files: files,
+      // If we're setting files for the first time, set the first one as default
+      defaultFileName: prev.defaultFileName || (files.length > 0 ? files[0].name : ""),
+    }));
+  };
+  
+  const handleSetDefaultFile = (file: File) => {
+    setForm((prev) => ({
+      ...prev,
+      defaultFileName: file.name,
+    }));
+  };
+
+  const uploadFiles = async (adId: string, files: File[]) => {
+    if (!files.length) return { success: true };
+
+    try {
+      const formData = new FormData();
+      files.forEach((file) => {
+        formData.append("files", file);
+      });
+      
+      // Add the default file name to the form data
+      if (form.defaultFileName) {
+        formData.append("defaultFileName", form.defaultFileName);
+      }
+
+      const response = await fetch(`/api/ads/${adId}/upload`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to upload files");
+      }
+      
+      const result = await response.json();
+      
+      // If we have a default file, set it as default on the server
+      if (form.defaultFileName && result.success) {
+        const defaultFile = files.find(file => file.name === form.defaultFileName);
+        if (defaultFile) {
+          const serverFileName = result.files.find(
+            (f: any) => f.originalName === defaultFile.name
+          )?.fileName;
+          
+          if (serverFileName) {
+            await fetch(`/api/ads/${adId}/default-media`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ fileName: serverFileName }),
+            });
+          }
+        }
+      }
+
+      return result;
+    } catch (error: any) {
+      console.error("Error uploading files:", error);
+      throw new Error(error.message || "Failed to upload files");
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    const dataToSubmit = {
-      ...form,
-      tags: form.tags
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean),
-      areaId: form.areaId,
-    };
-    if (ad_id) {
-      fetch(`/api/ads/${ad_id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dataToSubmit),
-      })
-        .then(async (res) => {
-          if (!res.ok) throw new Error("Failed to update ad");
-          return res.json();
-        })
-        .then((updatedAd) => {
-          onSubmit(updatedAd);
-        })
-        .catch((err) => {
-          setErrors({ general: err.message || "Error updating ad" });
+    
+    try {
+      const dataToSubmit = {
+        ...form,
+        tags: form.tags
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean),
+        areaIds: form.areaIds,
+      };
+      
+      // Remove files from the data to submit as they'll be handled separately
+      const { files, ...dataWithoutFiles } = dataToSubmit as any;
+      
+      if (ad_id) {
+        // Update existing ad
+        const res = await fetch(`/api/ads/${ad_id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dataWithoutFiles),
         });
-    } else {
-      onSubmit(dataToSubmit);
+        
+        if (!res.ok) throw new Error("Failed to update ad");
+        
+        const updatedAd = await res.json();
+        
+        // Upload files if any
+        if (files && files.length > 0) {
+          await uploadFiles(ad_id, files);
+        }
+        
+        onSubmit(updatedAd);
+      } else {
+        // Create new ad
+        const res = await fetch(`/api/ads`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dataWithoutFiles),
+        });
+        
+        if (!res.ok) throw new Error("Failed to create ad");
+        
+        const newAd = await res.json();
+        
+        // Upload files if any
+        if (files && files.length > 0) {
+          await uploadFiles(newAd.id, files);
+        }
+        
+        onSubmit(newAd);
+      }
+    } catch (err: any) {
+      setErrors({ general: err.message || "Error processing ad" });
     }
   };
 
@@ -389,18 +510,41 @@ export default function AdForm({
             </p>
           </div>
 
-          {/* Areas Dropdown */}
+          {/* Areas Multi-Select */}
           <div className="space-y-2">
-            <Areas
-              label="אזור"
-              id="areaId"
-              value={form.areaId}
+            <MultiSelectAreas
+              label="אזורים"
+              id="areaIds"
+              value={form.areaIds}
               onChange={handleAreaChange}
               className="w-full"
+              required
+              placeholder="בחר אזורים..."
+              maxSelections={5}
             />
-            {errors.areaId && (
-              <div className="text-red-500 text-xs mt-1">{errors.areaId}</div>
+            {errors.areaIds && (
+              <div className="text-red-500 text-xs mt-1">{errors.areaIds}</div>
             )}
+          </div>
+
+          {/* File Upload Section */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              תמונות ווידאו
+            </label>
+            <FileUpload
+              onFilesChange={handleFilesChange}
+              maxFiles={10}
+              acceptedTypes={["image/*", "video/*"]}
+              maxFileSize={50}
+              files={form.files}
+              className="w-full"
+              onSetDefaultFile={handleSetDefaultFile}
+              defaultFileName={form.defaultFileName}
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              ניתן להעלות עד 10 קבצים (תמונות ווידאו) בגודל מקסימלי של 50MB כל אחד
+            </p>
           </div>
 
           {/* Personal Details Section */}

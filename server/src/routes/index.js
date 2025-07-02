@@ -3,6 +3,7 @@ const postRoutes = require("./postRoutes");
 const clientRoutes = require("./clientRoutes");
 const campaignRoutes = require("./campaignRoutes");
 const adRoutes = require("./adRoutes");
+const adMediaRoutes = require("./adMediaRoutes");
 const cityRoutes = require("./city.routes.js");
 const areaRoutes = require("./area.routes.js");
 const { ApiError } = require("../middlewares/errorHandler");
@@ -18,6 +19,7 @@ const setupRoutes = (app) => {
   app.use("/api/clients", clientRoutes);
   app.use("/api/campaigns", campaignRoutes);
   app.use("/api/ads", adRoutes);
+  app.use("/api/ads", adMediaRoutes); // Media upload routes
   app.use("/api/cities", cityRoutes);
   app.use("/api/areas", areaRoutes);
 

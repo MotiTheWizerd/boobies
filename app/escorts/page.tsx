@@ -1,18 +1,18 @@
 import { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { FaFire } from "react-icons/fa";
+import { FaFire, FaUserTie } from "react-icons/fa";
 import { CardGallerySection } from "@/components/HotProfiles";
 import HotProfilesGallery from "@/components/HotProfiles/HotProfilesGallery";
 
 export const metadata: Metadata = {
-  title: "Escorts | YourSiteName",
+  title: "ליווי יוקרתי בישראל | bOObies.co.il",
   description:
-    "Discover top escorts in your area. Browse profiles, photos, and more. Safe, discreet, and up-to-date listings.",
+    "גלו מלוות יוקרתיות בישראל עם פרופילים מאומתים, תמונות אמיתיות ודיסקרטיות מלאה. כל המודעות מעודכנות, אמינות ומותאמות לפרטיותכם.",
   openGraph: {
-    title: "Escorts | YourSiteName",
+    title: "ליווי יוקרתי בישראל | bOObies.co.il",
     description:
-      "Discover top escorts in your area. Browse profiles, photos, and more. Safe, discreet, and up-to-date listings.",
+      "גלו מלוות יוקרתיות בישראל עם פרופילים מאומתים, תמונות אמיתיות ודיסקרטיות מלאה. כל המודעות מעודכנות, אמינות ומותאמות לפרטיותכם.",
     url: "/escorts",
     type: "website",
   },
@@ -26,10 +26,17 @@ export default function EscortsPage() {
     <main className="min-h-[60vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 py-16">
       <div className="w-full max-w-7xl mx-auto">
         <CardGallerySection
-          title="חם בלעדי"
-          icon={<FaFire className="fire-icon text-amber-500" />}
+          title="ליווי יוקרתי"
+          icon={<FaUserTie className="text-pink-500" />}
           GalleryList={HotProfilesGallery}
         />
+        <section className="mt-6 text-lg text-right max-w-3xl mx-auto px-2">
+          <p>
+            גלו מלוות יוקרתיות בישראל עם פרופילים מאומתים, תמונות אמיתיות
+            ודיסקרטיות מלאה. כל המודעות באתר bOObies.co.il מעודכנות, אמינות
+            ומותאמות לפרטיותכם ולחוויה בלתי נשכחת.
+          </p>
+        </section>
       </div>
     </main>
   );

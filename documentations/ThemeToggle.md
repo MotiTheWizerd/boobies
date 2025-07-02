@@ -197,3 +197,71 @@ export default function Navbar() {
 ```
 
 The ThemeToggle enhances accessibility and user experience by allowing visitors to choose their preferred theme, which also benefits SEO through improved engagement metrics and accessibility scores.
+
+## Part 3: Office Pages Theme Implementation
+
+### Overview
+
+The office pages have been updated to support both light and dark themes using Tailwind CSS's dark mode functionality. This implementation ensures a consistent user experience across the entire application while respecting user theme preferences.
+
+### Components Updated
+
+1. **Layout Components**:
+   - `AdminHeader`: Updated with theme-responsive classes and includes the ThemeToggle component
+   - `AdminSidebar`: Updated navigation elements with theme-responsive background, text, and hover states
+
+2. **UI Components**:
+   - `Card`: Updated card components with theme-responsive backgrounds, borders, and text colors
+   - `Calendar`: Updated calendar with theme-responsive styling for dates, headers, and interactive elements
+
+3. **Dashboard Components**:
+   - `DashboardStats`: Updated stat cards with theme-responsive styling
+   - `Charts`: Updated chart components with theme-responsive text and legend colors
+   - `Dashboard Page`: Updated headings, calendar, and task list items with theme-responsive classes
+
+4. **Client Management Components**:
+   - `ClientTable`: Uses theme variables for consistent styling
+   - `ClientRow`: Updated with theme-responsive status indicators
+   - `ClientActionsDropdown`: Uses theme variables for dropdown styling
+   - `ClientFilters`: Updated with theme-responsive form controls
+   - Modal components: Use theme-responsive styling for consistent appearance
+
+### Implementation Pattern
+
+All components follow a consistent pattern for theme implementation:
+
+```tsx
+// Before: Fixed dark theme styling
+<div className="bg-gray-850 text-gray-200">
+
+// After: Theme-responsive styling
+<div className="bg-white dark:bg-gray-850 text-gray-800 dark:text-gray-200">
+```
+
+### Usage in New Components
+
+When creating new components for the office pages, follow these guidelines:
+
+1. **Use Tailwind dark mode classes**:
+   ```tsx
+   <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+   ```
+
+2. **Use theme-aware variables for custom styling**:
+   ```css
+   .custom-element {
+     background-color: var(--background);
+     color: var(--foreground);
+   }
+   ```
+
+3. **Ensure proper contrast in both themes**:
+   - Test all components in both light and dark modes
+   - Verify that text remains readable and UI elements have sufficient contrast
+
+4. **Use semantic color variables**:
+   ```tsx
+   <div className="bg-background text-foreground border-border">
+   ```
+
+By following these patterns, all office pages maintain consistent theming that respects user preferences while providing an optimal viewing experience in any lighting condition.

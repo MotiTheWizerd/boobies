@@ -4,15 +4,16 @@ import Footer from "@/components/Footer";
 import { FaRegBuilding } from "react-icons/fa";
 import { CardGallerySection } from "@/components/HotProfiles";
 import FeaturedProfiles from "@/components/FeaturedProfiles";
+import HotProfilesGallery from "@/components/HotProfiles/HotProfilesGallery";
 
 export const metadata: Metadata = {
-  title: "Discreet Apartments | YourSiteName",
+  title: "דירות דיסקרטיות בישראל | bOObies.co.il",
   description:
-    "Find discreet apartments for private encounters. Safe, comfortable, and confidential locations. Browse listings now.",
+    "מצאו דירות דיסקרטיות בישראל למפגשים פרטיים באווירה בטוחה, נוחה ודיסקרטית. כל הדירות באתר bOObies.co.il מאומתות, מתוחזקות ומותאמות לפרטיותכם המלאה.",
   openGraph: {
-    title: "Discreet Apartments | YourSiteName",
+    title: "דירות דיסקרטיות בישראל | bOObies.co.il",
     description:
-      "Find discreet apartments for private encounters. Safe, comfortable, and confidential locations. Browse listings now.",
+      "מצאו דירות דיסקרטיות בישראל למפגשים פרטיים באווירה בטוחה, נוחה ודיסקרטית. כל הדירות באתר bOObies.co.il מאומתות, מתוחזקות ומותאמות לפרטיותכם המלאה.",
     url: "/discreet-apartments",
     type: "website",
   },
@@ -28,8 +29,15 @@ export default function DiscreetApartmentsPage() {
         <CardGallerySection
           title="דירות דיסקרטיות מומלצות"
           icon={<FaRegBuilding className="text-blue-500" />}
-          GalleryList={FeaturedProfiles}
+          GalleryList={HotProfilesGallery}
         />
+        <section className="mt-6 text-lg text-right max-w-3xl mx-auto px-2">
+          <p>
+            מצאו דירות דיסקרטיות בישראל למפגשים פרטיים באווירה בטוחה, נוחה
+            ודיסקרטית. כל הדירות באתר bOObies.co.il מאומתות, מתוחזקות ומותאמות
+            לפרטיותכם המלאה ולחוויה איכותית.
+          </p>
+        </section>
       </div>
     </main>
   );

@@ -83,6 +83,7 @@ model Ad {
   campaignId    String
   tags          String[]   @default([])
   areas         AdArea[]   // Relation to AdArea join table
+  media         AdMedia[]  // Relation to media files
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   service_type  ServiceType @default(INCALL)
@@ -114,4 +115,17 @@ model AdArea {
   updatedAt DateTime @updatedAt
 
   @@unique([adId, areaId])
+}
+
+model AdMedia {
+  id           String   @id @default(uuid())
+  ad           Ad       @relation(fields: [adId], references: [id], onDelete: Cascade)
+  adId         String
+  originalName String   // Original filename
+  fileName     String   // Generated unique filename
+  fileType     String   // MIME type
+  fileSize     Int      // File size in bytes
+  url          String   // Public URL path
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }

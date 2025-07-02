@@ -5,7 +5,7 @@ import Menu, { MenuItemType } from "./Menu";
 
 // Mock data for main menu items
 const mainMenuItems: MenuItemType[] = [
-  { id: 1, label: "ראשי", href: "#" },
+  { id: 1, label: "ראשי", href: "/" },
   {
     id: 2,
     label: "בלעדי",
@@ -14,15 +14,15 @@ const mainMenuItems: MenuItemType[] = [
     hasFireIcon: true,
     extraContent: { before: "חם", after: "בלעדי" },
   },
-  { id: 3, label: "נערות ליווי", href: "" },
+  // { id: 3, label: "נערות ליווי", href: "" },
   { id: 4, label: "שירותי ליווי", href: "/escorts" },
   { id: 6, label: "דירות דיסקרטיות", href: "/discreet-apartments" },
   { id: 7, label: "טופ 10", href: "#" },
-  { id: 8, label: "חדשות", href: "#" },
-  { id: 9, label: "תמונות", href: "#" },
-  { id: 10, label: "סרטונים", href: "#" },
-  { id: 11, label: "אתרים מובילים", href: "#" },
-  { id: 12, label: 'אתרים בחו"ל', href: "#" },
+  // { id: 8, label: "חדשות", href: "#" },
+  // { id: 9, label: "תמונות", href: "#" },
+  // { id: 10, label: "סרטונים", href: "#" },
+  // { id: 11, label: "אתרים מובילים", href: "#" },
+  // { id: 12, label: 'אתרים בחו"ל', href: "#" },
   { id: 13, label: "צור קשר", href: "#" },
 ];
 
