@@ -259,6 +259,7 @@ export default function AdForm({
     if (!validate()) return;
     
     try {
+      // Prepare the data to submit
       const dataToSubmit = {
         ...form,
         tags: form.tags
@@ -268,47 +269,15 @@ export default function AdForm({
         areaIds: form.areaIds,
       };
       
-      // Remove files from the data to submit as they'll be handled separately
-      const { files, ...dataWithoutFiles } = dataToSubmit as any;
+      // Call the parent's onSubmit handler with the form data and files
+      await onSubmit({
+        ...dataToSubmit,
+        files: form.files,
+        defaultFileName: form.defaultFileName
+      });
       
-      if (ad_id) {
-        // Update existing ad
-        const res = await fetch(`/api/ads/${ad_id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(dataWithoutFiles),
-        });
-        
-        if (!res.ok) throw new Error("Failed to update ad");
-        
-        const updatedAd = await res.json();
-        
-        // Upload files if any
-        if (files && files.length > 0) {
-          await uploadFiles(ad_id, files);
-        }
-        
-        onSubmit(updatedAd);
-      } else {
-        // Create new ad
-        const res = await fetch(`/api/ads`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(dataWithoutFiles),
-        });
-        
-        if (!res.ok) throw new Error("Failed to create ad");
-        
-        const newAd = await res.json();
-        
-        // Upload files if any
-        if (files && files.length > 0) {
-          await uploadFiles(newAd.id, files);
-        }
-        
-        onSubmit(newAd);
-      }
     } catch (err: any) {
+      console.error("Error in handleSubmit:", err);
       setErrors({ general: err.message || "Error processing ad" });
     }
   };

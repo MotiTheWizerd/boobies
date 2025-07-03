@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 
 // Define the profile interface (matching the existing HotProfileProps)
 export interface HotProfileProps {
-  id: number;
+  id: string;
   name: string;
   imageUrl: string;
   isHappyHour?: boolean;
@@ -10,77 +10,120 @@ export interface HotProfileProps {
   isPremium?: boolean;
   likesCount: number;
   viewsCount: number;
+  media?: Array<{
+    fileName: string;
+    fileSize: number;
+    fileType: string;
+    isDefault?: boolean;
+    originalName: string;
+    url: string;
+  }>;
 }
 
-// Mock data function - replace with actual API call in production
-const fetchMoreProfiles = async (
-  page: number,
-  limit: number,
-  existingProfilesCount: number
-): Promise<HotProfileProps[]> => {
-  // Simulate network delay (shorter for better UX)
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+// Interface for the Ad data from the API
+interface AdData {
+  id: string;
+  name: string;
+  description?: string;
+  isHappyHour: boolean;
+  isHot: boolean;
+  isPremium: boolean;
+  likesCount: number;
+  viewsCount: number;
+  images?: Array<{
+    fileName: string;
+    fileSize: number;
+    fileType: string;
+    isDefault: boolean;
+    originalName: string;
+    url: string;
+  }> | null;
+}
 
-  // Generate mock profiles - in production, this would be an API call
-  return Array(limit)
-    .fill(0)
-    .map((_, i) => {
-      // Make sure each profile has a unique ID based on the total count so far
-      const uniqueId = existingProfilesCount + i + 1;
-      return {
-        id: uniqueId,
-        name: `פרופיל ${uniqueId}`,
-        imageUrl: `/images/hot-${(uniqueId % 3) + 1}.webp`,
-        isHappyHour: Math.random() > 0.7,
-        isHot: Math.random() > 0.7,
-        isPremium: Math.random() > 0.8,
-        likesCount: Math.floor(Math.random() * 1000),
-        viewsCount: Math.floor(Math.random() * 5000),
-      };
-    });
+// Function to get the default image URL from ad images
+const getDefaultImageUrl = (images?: AdData['images']): string => {
+  console.log('getDefaultImageUrl - images:', images);
+  
+  if (!images || images.length === 0) {
+    console.log('No images found, using placeholder');
+    return '/images/placeholder.webp'; // Fallback image
+  }
+  
+  // Look for the default image first, then fall back to the first image
+  const defaultImage = images.find(img => img.isDefault && img.fileType.startsWith('image/'));
+  const firstImage = images.find(img => img.fileType.startsWith('image/'));
+  
+  const selectedImage = defaultImage || firstImage;
+  const imageUrl = selectedImage ? selectedImage.url : '/images/placeholder.webp';
+  console.log('Using image URL:', imageUrl);
+  return imageUrl;
 };
 
-export const useHotProfiles = (initialLimit = 20) => {
+// Function to convert Ad data to HotProfileProps
+const mapAdToProfile = (ad: AdData): HotProfileProps => {
+  console.log('mapAdToProfile - ad data:', ad);
+  return {
+    id: ad.id,
+    name: ad.name,
+    imageUrl: getDefaultImageUrl(ad.images),
+    isHappyHour: ad.isHappyHour,
+    isHot: ad.isHot,
+    isPremium: ad.isPremium,
+    likesCount: ad.likesCount,
+    viewsCount: ad.viewsCount,
+    media: ad.images || [],
+  };
+};
+
+// Fetch ads from the API
+const fetchAds = async (): Promise<HotProfileProps[]> => {
+  try {
+    const response = await fetch('/api/ads');
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    // Handle both array response and object with data property
+    const ads = Array.isArray(data) ? data : (data.data || []);
+    
+    return ads.map(mapAdToProfile);
+  } catch (error) {
+    console.error('Error fetching ads:', error);
+    throw error;
+  }
+};
+
+export const useHotProfiles = () => {
   const [profiles, setProfiles] = useState<HotProfileProps[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState(true);
-  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(false); // Set to false since we're loading all ads at once for now
 
   const loadProfiles = useCallback(async () => {
-    if (loading || !hasMore) return;
+    if (loading) return;
 
     setLoading(true);
+    setError(null);
+    
     try {
-      // Pass the current count of profiles to ensure unique IDs
-      const newProfiles = await fetchMoreProfiles(
-        page,
-        initialLimit,
-        profiles.length
-      );
-
-      // Limit the total number of profiles to 100 for this demo
-      if (
-        newProfiles.length === 0 ||
-        profiles.length + newProfiles.length >= 100
-      ) {
-        setHasMore(false);
-      } else {
-        setProfiles((prev) => [...prev, ...newProfiles]);
-        setPage((prev) => prev + 1);
-      }
+      const fetchedProfiles = await fetchAds();
+      setProfiles(fetchedProfiles);
+      setHasMore(false); // No pagination for now - loading all ads at once
     } catch (err) {
       setError("Failed to load profiles");
-      console.error(err);
+      console.error('Error loading profiles:', err);
     } finally {
       setLoading(false);
     }
-  }, [loading, hasMore, page, initialLimit, profiles.length]);
+  }, [loading]);
 
-  // Load initial batch
+  // Load ads on component mount
   useEffect(() => {
     loadProfiles();
-  }, [loadProfiles]);
+  }, []);
 
   return { profiles, loading, error, hasMore, loadProfiles };
 };

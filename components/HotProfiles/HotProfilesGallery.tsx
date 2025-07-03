@@ -60,8 +60,8 @@ const MainPageScrollGallery = ({
   loading: boolean;
 }) => {
   // Track which profiles are new to animate them
-  const [visibleIds, setVisibleIds] = useState<number[]>([]);
-  const [animatedIds, setAnimatedIds] = useState<number[]>([]);
+  const [visibleIds, setVisibleIds] = useState<string[]>([]);
+  const [animatedIds, setAnimatedIds] = useState<string[]>([]);
   const [lastDataLength, setLastDataLength] = useState(0);
 
   // Use the intersection observer hook for infinite scrolling
@@ -156,6 +156,7 @@ const MainPageScrollGallery = ({
                 likesCount={profile.likesCount}
                 viewsCount={profile.viewsCount}
                 priority={isPriority}
+                media={profile.media}
               />
             </div>
           );

@@ -9,6 +9,31 @@ export default function ManageAdsPage() {
   const router = useRouter();
   const params = useParams();
   const pageCampaignId = params.campaignId as string; // Extract campaignId from params
+  console.log('Campaign ID from URL:', pageCampaignId);
+  
+  // Check if we're in 'new' mode or have an actual campaign ID
+  const isNewMode = pageCampaignId === 'new';
+  const formattedCampaignId = pageCampaignId ? pageCampaignId.trim() : '';
+  
+  // State to store the selected campaign ID when in 'new' mode
+  const [selectedCampaignId, setSelectedCampaignId] = useState('');
+  const [availableCampaigns, setAvailableCampaigns] = useState<{id: string, campaign_name: string}[]>([]);
+  const [loadingCampaigns, setLoadingCampaigns] = useState(false);
+  
+  // Fetch available campaigns when in 'new' mode
+  useEffect(() => {
+    if (isNewMode) {
+      setLoadingCampaigns(true);
+      fetch('/api/campaigns')
+        .then(res => res.json())
+        .then(data => {
+          setAvailableCampaigns(data);
+          console.log('Available campaigns:', data);
+        })
+        .catch(err => console.error('Error fetching campaigns:', err))
+        .finally(() => setLoadingCampaigns(false));
+    }
+  }, [isNewMode]);
   const searchParams = useSearchParams();
   const adId = searchParams.get("ad_id");
 
@@ -37,17 +62,32 @@ export default function ManageAdsPage() {
   };
 
   // Handle form submission and API call
-  const handleAdSubmit = async (data: any) => {
+  const handleAdSubmit = async (formData: any) => {
+    // Prevent submission if in new mode and no campaign selected
+    if (isNewMode && !selectedCampaignId) {
+      toast.error('יש לבחור קמפיין לפני יצירת מודעה');
+      setError('יש לבחור קמפיין לפני יצירת מודעה');
+      return;
+    }
+    
     setIsSubmitting(true);
     setError(null);
-
-    // Ensure the actual campaignId from the route is part of the submission
-    const submissionData = {
-      ...data,
-      campaignId: pageCampaignId || data.campaignId, // Prioritize route campaignId
-    };
+    
+    console.log('Form submission started');
+    console.log('Form data received:', formData);
+    console.log('Campaign ID in URL:', formattedCampaignId);
+    console.log('Selected campaign ID:', isNewMode ? selectedCampaignId : formattedCampaignId);
 
     try {
+      // Prepare the submission data
+      const { files, defaultFileName, ...submissionData } = formData;
+      
+      // Use selected campaign ID if in new mode, otherwise use the route campaign ID
+      submissionData.campaignId = isNewMode ? selectedCampaignId : formattedCampaignId;
+      
+      console.log('Submission data after preparation:', submissionData);
+      
+
       let response;
       if (adId) {
         // Edit mode: update existing ad
@@ -60,12 +100,22 @@ export default function ManageAdsPage() {
         });
       } else {
         // Create mode: create new ad
+        // Include campaignId in the submission data and ensure it's properly formatted
+        const newAdData = {
+          ...submissionData,
+          campaignId: isNewMode ? selectedCampaignId : formattedCampaignId,  // Use selected campaign ID if in new mode
+          images: [] // Initialize with empty images array
+        };
+        
+        console.log('Creating new ad with data:', JSON.stringify(newAdData, null, 2));
+        console.log('Campaign ID being sent:', formattedCampaignId);
+        
         response = await fetch("/api/ads", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(submissionData),
+          body: JSON.stringify(newAdData),
         });
       }
 
@@ -78,14 +128,64 @@ export default function ManageAdsPage() {
       }
 
       const resultAd = await response.json();
-      console.log(
-        adId ? "Ad updated successfully:" : "Ad created successfully:",
-        resultAd
-      );
-
-      // Show toast instead of redirect
-      toast.success(adId ? "המודעה עודכנה בהצלחה!" : "המודעה נוצרה בהצלחה!");
-      // Optionally, you can reset the form or update state here
+      
+      // Handle file uploads if there are any files
+      if (files && files.length > 0) {
+        try {
+          const formData = new FormData();
+          files.forEach((file: File) => {
+            formData.append("files", file);
+          });
+          
+          // Add the default file name if specified
+          if (defaultFileName) {
+            formData.append("defaultFileName", defaultFileName);
+          }
+          
+          const uploadResponse = await fetch(`/api/ads/${resultAd.id}/upload`, {
+            method: "POST",
+            body: formData,
+          });
+          
+          if (!uploadResponse.ok) {
+            const error = await uploadResponse.json();
+            throw new Error(error.message || "Failed to upload files");
+          }
+          
+          // Refresh the ad data to include the uploaded files
+          const updatedAdResponse = await fetch(`/api/ads/${resultAd.id}`);
+          if (!updatedAdResponse.ok) {
+            throw new Error("Failed to fetch updated ad data");
+          }
+          
+          const updatedAd = await updatedAdResponse.json();
+          console.log("Ad created/updated with files:", updatedAd);
+          
+          // Show success message
+          toast.success(adId ? "המודעה עודכנה בהצלחה!" : "המודעה נוצרה בהצלחה!");
+          return updatedAd;
+          
+        } catch (uploadError: any) {
+          // If file upload fails, delete the created ad to avoid orphaned records
+          if (!adId) {
+            try {
+              await fetch(`/api/ads/${resultAd.id}`, { method: "DELETE" });
+            } catch (deleteError) {
+              console.error("Failed to clean up ad after upload error:", deleteError);
+            }
+          }
+          throw uploadError;
+        }
+      } else {
+        // No files to upload, just show success message
+        console.log(
+          adId ? "Ad updated successfully:" : "Ad created successfully:",
+          resultAd
+        );
+        toast.success(adId ? "המודעה עודכנה בהצלחה!" : "המודעה נוצרה בהצלחה!");
+        return resultAd;
+      }
+      
     } catch (err: any) {
       console.error(adId ? "Error updating ad:" : "Error creating ad:", err);
       setError(
@@ -95,6 +195,7 @@ export default function ManageAdsPage() {
             : "An error occurred while creating the ad")
       );
       toast.error(adId ? "שגיאה בעדכון המודעה" : "שגיאה ביצירת המודעה");
+      throw err; // Re-throw to allow the form to handle the error
     } finally {
       setIsSubmitting(false);
     }
@@ -143,10 +244,39 @@ export default function ManageAdsPage() {
         </div>
       )}
 
+      {isNewMode && (
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold mb-2">בחר קמפיין</h2>
+          <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-4">
+            {loadingCampaigns ? (
+              <p>טוען קמפיינים...</p>
+            ) : (
+              <>
+                <select 
+                  value={selectedCampaignId} 
+                  onChange={(e) => setSelectedCampaignId(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">בחר קמפיין</option>
+                  {availableCampaigns.map(campaign => (
+                    <option key={campaign.id} value={campaign.id}>
+                      {campaign.campaign_name}
+                    </option>
+                  ))}
+                </select>
+                {!selectedCampaignId && (
+                  <p className="text-red-500 mt-2">*יש לבחור קמפיין לפני יצירת המודעה</p>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
+      
       <AdForm
         onSubmit={handleAdSubmit}
         isSubmitting={isSubmitting}
-        defaultValues={useTestData ? testData : { campaignId: pageCampaignId }}
+        defaultValues={useTestData ? testData : { campaignId: isNewMode ? selectedCampaignId : formattedCampaignId }}
         ad_id={adId || undefined}
       />
     </main>

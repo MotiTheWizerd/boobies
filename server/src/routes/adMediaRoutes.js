@@ -13,8 +13,9 @@ const prisma = new PrismaClient();
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const adId = req.params.id;
-    // Use path.resolve to ensure we get an absolute path
-    const uploadDir = path.resolve(__dirname, '../../../public/ads', adId);
+    // Save files to the frontend public folder instead of server public folder
+    // Go up one directory from server to reach the root project folder
+    const uploadDir = path.join(process.cwd(), '..', 'public', 'ads', adId);
     
     console.log('Upload destination directory:', uploadDir);
     console.log('Current working directory:', process.cwd());
@@ -26,15 +27,8 @@ const storage = multer.diskStorage({
         fs.mkdirSync(uploadDir, { recursive: true });
         console.log('Directory created successfully');
       } else {
-        // Clear existing files if directory exists
-        console.log('Directory exists, clearing existing files');
-        const files = fs.readdirSync(uploadDir);
-        console.log(`Found ${files.length} existing files to remove`);
-        for (const file of files) {
-          const filePath = path.join(uploadDir, file);
-          console.log('Removing file:', filePath);
-          fs.unlinkSync(filePath);
-        }
+        // Don't clear existing files - we'll use unique filenames instead
+        console.log('Directory exists, keeping existing files');
       }
       
       console.log('Destination directory ready');
@@ -45,8 +39,10 @@ const storage = multer.diskStorage({
     }
   },
   filename: function (req, file, cb) {
+    // Generate a truly unique filename with timestamp and UUID
+    const timestamp = Date.now();
     const fileExtension = path.extname(file.originalname);
-    const fileName = `${uuidv4()}${fileExtension}`;
+    const fileName = `${timestamp}-${uuidv4()}${fileExtension}`;
     console.log('Generated filename:', fileName, 'for original:', file.originalname);
     cb(null, fileName);
   }
@@ -79,7 +75,7 @@ const upload = multer({
     fileSize: 50 * 1024 * 1024, // 50MB
     files: 10 // Maximum 10 files
   }
-});
+}).array("files");
 
 /**
  * @route POST /api/ads/:id/upload
@@ -99,9 +95,10 @@ router.post(
       return res.status(404).json({ error: "Ad not found" });
     }
     
-    // Use multer to handle the file upload
     console.log('Starting file upload...');
-    upload.array("files")(req, res, async function (err) {
+    
+    // Use upload as middleware directly
+    upload(req, res, async function (err) {
       if (err) {
         console.error('Upload error:', err);
         if (err.code === "LIMIT_FILE_SIZE") {
@@ -119,50 +116,76 @@ router.post(
       }
       
       console.log(`Processing ${req.files.length} uploaded files`);
-      req.files.forEach((file, index) => {
+      
+      // Verify files were actually saved to disk
+      const uploadDir = path.join(process.cwd(), '..', 'public', 'ads', adId);
+      try {
+        const savedFiles = fs.readdirSync(uploadDir);
+        console.log(`Files in directory after upload: ${savedFiles.length}`);
+        savedFiles.forEach(file => console.log(`- ${file}`));
+      } catch (err) {
+        console.error('Error reading upload directory:', err);
+      }
+      
+      // Log detailed information about each file
+      for (let index = 0; index < req.files.length; index++) {
+        const file = req.files[index];
+        const exists = fs.existsSync(file.path);
         console.log(`File ${index + 1}:`, {
           originalname: file.originalname,
           filename: file.filename,
           size: file.size,
           mimetype: file.mimetype,
-          path: file.path
+          path: file.path,
+          exists: exists
         });
-      });
+        
+        // If file doesn't exist, log an error
+        if (!exists) {
+          console.error(`File ${file.originalname} was not saved to disk at ${file.path}`);
+        }
+      }
       
       try {
         // Get the defaultFileName from the request body if provided
         const defaultFileName = req.body.defaultFileName;
         console.log('Default file name from request:', defaultFileName);
         
-        // Create media records
-        const mediaRecords = req.files.map((file, index) => {
-          const fileUrl = `/ads/${adId}/${file.filename}`;
-          console.log('Generated file URL:', fileUrl);
-          
-          // Set isDefault based on the defaultFileName or first file
-          const isDefault = defaultFileName ? 
-            file.originalname === defaultFileName : 
-            index === 0;
+        // Create media records only for files that actually exist
+        const mediaRecords = req.files
+          .filter(file => fs.existsSync(file.path))
+          .map((file, index) => {
+            const fileUrl = `/ads/${adId}/${file.filename}`;
+            console.log('Generated file URL:', fileUrl);
             
-          console.log(`File ${file.originalname} isDefault:`, isDefault);
-          
-          return {
-            originalName: file.originalname,
-            fileName: file.filename,
-            fileType: file.mimetype,
-            fileSize: file.size,
-            url: fileUrl,
-            isDefault: isDefault
-          };
-        });
+            // Set isDefault based on the defaultFileName or first file
+            const isDefault = defaultFileName ? 
+              file.originalname === defaultFileName : 
+              index === 0;
+              
+            console.log(`File ${file.originalname} isDefault:`, isDefault);
+            
+            return {
+              originalName: file.originalname,
+              fileName: file.filename,
+              fileType: file.mimetype,
+              fileSize: file.size,
+              url: fileUrl,
+              isDefault: isDefault
+            };
+          });
+        
+        console.log(`Created ${mediaRecords.length} media records out of ${req.files.length} uploaded files`);
         
         // Update the ad with the new images
-        await prisma.ad.update({
+        const updatedAd = await prisma.ad.update({
           where: { id: adId },
           data: {
             images: mediaRecords,
           },
         });
+        
+        console.log(`Updated ad ${adId} with ${mediaRecords.length} images`);
         
         res.status(200).json({
           success: true,
