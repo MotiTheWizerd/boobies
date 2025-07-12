@@ -76,13 +76,13 @@ const HotProfileCard = ({
 
   return (
     <motion.div 
-      className="relative group bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-700"
-      whileHover={{ y: -4 }}
-      transition={{ type: 'spring', stiffness: 300 }}
+      className="relative group bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-700 w-full"
+      whileHover={{ y: -4, scale: 1.02 }}
+      transition={{ type: 'spring', stiffness: 300 }} 
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      <div className="relative h-72 md:h-80 w-full">
+      <div className="relative h-96 md:h-[32rem] w-full">
         {/* Show navigation controls if we have multiple media items */}
         {mediaItems.length > 1 && (
           <>
@@ -102,7 +102,7 @@ const HotProfileCard = ({
             </button>
             
             {/* Media counter indicator */}
-            <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 z-20 bg-black/50 text-white text-xs px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-20 bg-black/60 text-white text-sm px-3 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-medium">
               {currentIndex + 1}/{mediaItems.length}
             </div>
           </>
@@ -179,8 +179,8 @@ const HotProfileCard = ({
         </div>
       </div>
 
-      <div className="p-3">
-        <h3 className="text-gray-900 dark:text-white font-semibold text-center text-lg group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-300">
+      <div className="p-4">
+        <h3 className="text-gray-900 dark:text-white font-bold text-center text-xl group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-300">
           {name}
         </h3>
       </div>
