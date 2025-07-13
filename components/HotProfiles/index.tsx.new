@@ -5,23 +5,20 @@ import { FaFire } from "react-icons/fa";
 import HotProfilesGallery from "./HotProfilesGallery";
 import Image from "next/image";
 import { useHotProfiles } from "@/app/hooks/useHotProfiles";
+import type { HotProfileProps } from "./HotProfileCard";
 import ImageGalleryModal, { GalleryItem } from "../Common/Modal/ImageGalleryModal";
-import { getGalleryItems } from "@/app/utils/gallery";
 
 interface CardGallerySectionProps {
   title: string;
   icon?: React.ReactNode | string;
-  GalleryList: React.ComponentType;
-  onMediaClick: (item: { url: string; type: "image" | "video"; altText?: string }, index: number) => void;
+  GalleryList: React.ComponentType<{ onMediaClick: (item: GalleryItem, profileIndex: number) => void }>;
 }
 
-export const CardGallerySection: React.FC<CardGallerySectionProps> = ({
+const CardGallerySection: React.FC<CardGallerySectionProps> = ({
   title,
   icon,
   GalleryList,
-  onMediaClick,
 }) => {
-
   const renderIcon = () => {
     if (!icon) return null;
     if (typeof icon === "string") {
@@ -45,7 +42,7 @@ export const CardGallerySection: React.FC<CardGallerySectionProps> = ({
         <span>{title}</span>
       </h2>
       <div className="mt-3">
-        <GalleryList onMediaClick={onMediaClick} />
+        <GalleryList onMediaClick={(item, index) => onMediaClick(item, index)} />
       </div>
     </div>
   );
@@ -54,21 +51,44 @@ export const CardGallerySection: React.FC<CardGallerySectionProps> = ({
 const HotProfiles = () => {
   const { profiles } = useHotProfiles();
   const [selectedProfileIndex, setSelectedProfileIndex] = useState(0);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedMediaIndex, setSelectedMediaIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
-  const selectedProfile = profiles[selectedProfileIndex];
-  const { items: galleryItems, defaultIndex } = selectedProfile ? getGalleryItems(selectedProfile) : { items: [], defaultIndex: 0 };
+  // Get gallery items for the selected profile only
+  const getProfileGalleryItems = (profile: HotProfileProps): GalleryItem[] => {
+    if (profile.media && profile.media.length > 0) {
+      return profile.media.map((item: { url: string; fileType?: string }) => ({
+        url: item.url,
+        type: item.fileType?.startsWith("video/") ? ("video" as const) : ("image" as const),
+        altText: profile.name,
+      }));
+    }
+    return [{
+      url: profile.imageUrl,
+      type: "image" as const,
+      altText: profile.name,
+    }];
+  };
 
-  const handleMediaClick = (_item: GalleryItem, profileIndex: number) => {
+  const selectedProfile = profiles[selectedProfileIndex];
+  const galleryItems = selectedProfile ? getProfileGalleryItems(selectedProfile) : [];
+
+  const handleMediaClick = (item: GalleryItem, profileIndex: number) => {
     setSelectedProfileIndex(profileIndex);
     
+    // Find the media index within the profile's media items
     const profile = profiles[profileIndex];
     if (!profile) return;
 
-    const { defaultIndex } = getGalleryItems(profile);
-    // Always start with the default image when opening the gallery
-    setSelectedIndex(defaultIndex);
+    const mediaItems = profile.media && profile.media.length > 0
+      ? profile.media
+      : [{ url: profile.imageUrl, fileType: "image/jpeg" }];
+    
+    const mediaIndex = mediaItems.findIndex((media: { url: string }) => 
+      media.url === item.url
+    );
+    
+    setSelectedMediaIndex(Math.max(0, mediaIndex));
     setIsGalleryOpen(true);
   };
 
@@ -77,15 +97,13 @@ const HotProfiles = () => {
       <CardGallerySection
         title="חם בלעדי"
         icon={<FaFire className="fire-icon text-amber-500" />}
-        GalleryList={HotProfilesGallery}
-        onMediaClick={handleMediaClick}
-        profiles={profiles}
+        GalleryList={(props) => <HotProfilesGallery {...props} />}
       />
       <ImageGalleryModal
         isOpen={isGalleryOpen}
         onClose={() => setIsGalleryOpen(false)}
         items={galleryItems}
-        initialIndex={selectedIndex}
+        initialIndex={selectedMediaIndex}
       />
     </div>
   );

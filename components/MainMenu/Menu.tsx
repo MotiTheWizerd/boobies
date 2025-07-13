@@ -43,7 +43,7 @@ const Menu = ({
 
   return (
     <motion.ul
-      className={`flex items-center gap-6 text-sm overflow-x-auto pb-2 scrollbar-thin ${
+      className={`flex items-center gap-6 text-sm overflow-x-auto pb-2 scrollbar-thin w-full flex-row-reverse ${
         rtl ? "rtl-nav" : ""
       } ${className}`}
       variants={menuContainer}

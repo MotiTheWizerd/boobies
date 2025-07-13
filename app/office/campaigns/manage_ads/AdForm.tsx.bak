@@ -25,8 +25,10 @@ interface AdFormProps {
     whatsapp?: string;
     telegram?: string;
     areaIds?: (string | number)[];
+    cityId?: number; // Added city ID
     files?: File[];
     defaultFileName?: string;
+    service_type?: 'INCALL' | 'OUTCALL' | 'MIXED';
   };
   ad_id?: string; // Optional ad_id for edit mode
 }
@@ -35,6 +37,12 @@ const statusOptions = [
   { value: "active", label: "פעיל" },
   { value: "draft", label: "טיוטה" },
   { value: "archived", label: "ארכיון" },
+];
+
+const serviceTypeOptions = [
+  { value: "INCALL", label: "אצלי - In Call" },
+  { value: "OUTCALL", label: "אצלך - Out Call" },
+  { value: "MIXED", label: "אצלי ואצלך - Mixed" },
 ];
 
 export default function AdForm({
@@ -61,9 +69,15 @@ export default function AdForm({
     whatsapp: defaultValues.whatsapp || "",
     telegram: defaultValues.telegram || "",
     areaIds: defaultValues.areaIds || [],
+    cityId: defaultValues.cityId || "",
     files: defaultValues.files || [],
     defaultFileName: "",
+    service_type: defaultValues.service_type || "INCALL",
   });
+
+  // Add state for cities
+  const [cities, setCities] = useState<Array<{ id: number, city_name: string }>>([]);
+  const [loadingCities, setLoadingCities] = useState(false);
 
   // Edit mode: fetch ad data if ad_id is provided
   const [loading, setLoading] = useState(false);
@@ -109,9 +123,11 @@ export default function AdForm({
           whatsapp: data.whatsapp || "",
           telegram: data.telegram || "",
           areaIds: areaIds,
+          cityId: data.cityId || "", // Set cityId from fetched data
           files: [], // Files will be handled separately in edit mode
           defaultFileName: data.images && data.images.length > 0 ? 
-            data.images.find((img: any) => img.isDefault)?.fileName || data.images[0]?.fileName || "" : ""
+            data.images.find((img: any) => img.isDefault)?.fileName || data.images[0]?.fileName || "" : "",
+          service_type: data.service_type || "INCALL",
         });
       })
       .catch((err) => {
@@ -142,8 +158,10 @@ export default function AdForm({
       whatsapp: defaultValues.whatsapp || "",
       telegram: defaultValues.telegram || "",
       areaIds: defaultValues.areaIds || [],
+      cityId: defaultValues.cityId || "", // Initialize cityId
       files: defaultValues.files || [],
       defaultFileName: defaultValues.defaultFileName || "",
+      service_type: defaultValues.service_type || 'INCALL',
     });
   }, [defaultValues, ad_id]);
 
@@ -173,15 +191,50 @@ export default function AdForm({
     }));
   };
 
+  // Add function to fetch cities when area changes
+  const fetchCities = async (areaId: string | number) => {
+    try {
+      setLoadingCities(true);
+      console.log(`Fetching cities for area ID: ${areaId}`);
+      
+      const response = await fetch(`/api/cities/${areaId}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`HTTP Status: ${response.status}, Response:`, errorText);
+        throw new Error(`Failed to fetch cities: ${response.status} ${errorText}`);
+      }
+      
+      const data = await response.json();
+      console.log('Cities data received:', data);
+      setCities(data);
+      
+    } catch (error) {
+      console.error('Error fetching cities:', error);
+      // Show error in form
+      setErrors(prev => ({ ...prev, cities: error instanceof Error ? error.message : 'Failed to fetch cities' }));
+    } finally {
+      setLoadingCities(false);
+    }
+  };
+
+  // Modify handleAreaChange to fetch cities
   const handleAreaChange = (areaIdsValue: (string | number)[]) => {
     // Convert all area IDs to strings to ensure consistent type
     const stringAreaIds = areaIdsValue.map(id => id.toString());
     setForm((prev) => ({
       ...prev,
       areaIds: stringAreaIds,
+      cityId: "", // Reset city when area changes
     }));
     if (errors.areaIds) {
       setErrors((prev) => ({ ...prev, areaIds: "" }));
+    }
+    
+    // If there's exactly one area selected, fetch its cities
+    if (areaIdsValue.length === 1) {
+      fetchCities(areaIdsValue[0]);
+    } else {
+      setCities([]); // Clear cities if multiple or no areas selected
     }
   };
 
@@ -264,7 +317,8 @@ export default function AdForm({
         ...form,
         tags: form.tags
           .split(",")
-          .map((t) => t.trim())
+          .map((t) => t.trim()),
+        cityId: form.cityId ? parseInt(form.cityId.toString()) : undefined
           .filter(Boolean),
         areaIds: form.areaIds,
       };
@@ -479,6 +533,30 @@ export default function AdForm({
             </p>
           </div>
 
+          {/* Service Type Field */}
+          <div className="space-y-2">
+            <label
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              htmlFor="service_type"
+            >
+              סוג שירות
+            </label>
+            <select
+              id="service_type"
+              name="service_type"
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary dark:focus:border-primary transition-colors duration-200"
+              value={form.service_type}
+              onChange={handleChange}
+              required
+            >
+              {serviceTypeOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Areas Multi-Select */}
           <div className="space-y-2">
             <MultiSelectAreas
@@ -495,6 +573,36 @@ export default function AdForm({
               <div className="text-red-500 text-xs mt-1">{errors.areaIds}</div>
             )}
           </div>
+
+          {/* City Selection - Only show when exactly one area is selected */}
+          {form.areaIds.length === 1 && (
+            <div className="space-y-2">
+              <label
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                htmlFor="cityId"
+              >
+                עיר
+              </label>
+              <select
+                id="cityId"
+                name="cityId"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary dark:focus:border-primary transition-colors duration-200"
+                value={form.cityId}
+                onChange={handleChange}
+                disabled={loadingCities}
+              >
+                <option value="">בחר עיר...</option>
+                {cities.map((city) => (
+                  <option key={city.id} value={city.id}>
+                    {city.city_name}
+                  </option>
+                ))}
+              </select>
+              {loadingCities && (
+                <p className="text-sm text-gray-500">טוען ערים...</p>
+              )}
+            </div>
+          )}
 
           {/* File Upload Section */}
           <div className="space-y-2">

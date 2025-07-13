@@ -21,6 +21,19 @@ export const metadata: Metadata = {
   },
 };
 
+const EscortsHotProfilesGallery = () => {
+  const handleMediaClick = (
+    item: { url: string; type: "image" | "video"; altText?: string },
+    index: number
+  ) => {
+    // Handle media click
+    console.log("Media clicked:", item, "at index:", index);
+    // You can implement a lightbox or modal here
+  };
+
+  return <HotProfilesGallery serviceType="OUTCALL_OR_MIXED" onMediaClick={handleMediaClick} />;
+};
+
 export default function EscortsPage() {
   return (
     <main className="min-h-[60vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 py-16">
@@ -28,7 +41,7 @@ export default function EscortsPage() {
         <CardGallerySection
           title="ליווי יוקרתי"
           icon={<FaUserTie className="text-pink-500" />}
-          GalleryList={HotProfilesGallery}
+          GalleryList={EscortsHotProfilesGallery}
         />
         <section className="mt-6 text-lg text-right max-w-3xl mx-auto px-2">
           <p>

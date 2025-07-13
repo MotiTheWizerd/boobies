@@ -10,10 +10,17 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const campaignId = searchParams.get("campaignId");
+    const serviceType = searchParams.get("serviceType");
 
-    const url = campaignId
-      ? `${EXPRESS_API_URL}/api/ads?campaignId=${campaignId}`
-      : `${EXPRESS_API_URL}/api/ads`;
+    let url = `${EXPRESS_API_URL}/api/ads`;
+    const params = new URLSearchParams();
+
+    if (campaignId) params.append("campaignId", campaignId);
+    if (serviceType) params.append("serviceType", serviceType);
+
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
 
     const response = await fetch(url);
     const data = await response.json();

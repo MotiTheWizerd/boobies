@@ -1,10 +1,12 @@
 const express = require("express");
-const { getAllCities } = require("../controllers/CityController");
+const { getAllCities, getCitiesByArea } = require("../controllers/CityController");
 
 const router = express.Router();
 
-// Define the route to get all cities
-// GET /api/cities (assuming /api prefix is added in index.js)
+// GET /api/cities - Get all cities
 router.get("/", getAllCities);
+
+// GET /api/cities/:areaId - Get cities by area ID
+router.get("/:areaId", getCitiesByArea);
 
 module.exports = router;

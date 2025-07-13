@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Modal from "@/components/Common/Modal";
 import { CheckCircle2, Calendar } from "lucide-react";
 import { Client } from "../types"; // Adjust path as necessary
@@ -17,17 +17,21 @@ const NewCampaignModal: React.FC<NewCampaignModalProps> = ({
   selectedClient,
   onCampaignCreated,
 }) => {
-  const initialFormState = {
-    name: "",
-    description: "",
-    startDate: format(new Date(), "yyyy-MM-dd"),
-    endDate: format(
-      new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      "yyyy-MM-dd"
-    ),
-    budget: 0,
-    status: "draft", // Default status
-  };
+  const initialFormState = useMemo(
+    () => ({
+      name: "",
+      description: "",
+      startDate: format(new Date(), "yyyy-MM-dd"),
+      endDate: format(
+        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        "yyyy-MM-dd"
+      ),
+      budget: 0,
+      status: "draft", // Default status
+    }),
+    [] // Empty dependency array since this should never change
+  );
+
   const [form, setForm] = useState(initialFormState);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -40,7 +44,7 @@ const NewCampaignModal: React.FC<NewCampaignModalProps> = ({
     } else if (!isOpen) {
       setSuccess(false); // Reset success when modal is closed
     }
-  }, [isOpen, success, initialFormState]); // initialFormState added to dep array due to eslint exhaustive-deps
+  }, [isOpen, success, initialFormState]); // Keep initialFormState in deps since it's memoized
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>

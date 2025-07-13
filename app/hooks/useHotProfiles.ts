@@ -76,9 +76,13 @@ const mapAdToProfile = (ad: AdData): HotProfileProps => {
 };
 
 // Fetch ads from the API
-const fetchAds = async (): Promise<HotProfileProps[]> => {
+const fetchAds = async (serviceType?: string): Promise<HotProfileProps[]> => {
   try {
-    const response = await fetch('/api/ads');
+    const url = serviceType 
+      ? `/api/ads?serviceType=${serviceType}`
+      : '/api/ads';
+    
+    const response = await fetch(url);
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -96,7 +100,7 @@ const fetchAds = async (): Promise<HotProfileProps[]> => {
   }
 };
 
-export const useHotProfiles = () => {
+export const useHotProfiles = (serviceType?: string) => {
   const [profiles, setProfiles] = useState<HotProfileProps[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -109,7 +113,7 @@ export const useHotProfiles = () => {
     setError(null);
     
     try {
-      const fetchedProfiles = await fetchAds();
+      const fetchedProfiles = await fetchAds(serviceType);
       setProfiles(fetchedProfiles);
       setHasMore(false); // No pagination for now - loading all ads at once
     } catch (err) {
@@ -118,12 +122,12 @@ export const useHotProfiles = () => {
     } finally {
       setLoading(false);
     }
-  }, [loading]);
+  }, [loading, serviceType]);
 
   // Load ads on component mount
   useEffect(() => {
     loadProfiles();
-  }, []);
+  }, [loadProfiles]);
 
   return { profiles, loading, error, hasMore, loadProfiles };
 };

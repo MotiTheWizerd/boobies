@@ -66,7 +66,7 @@ const MainMenu = () => {
 
   return (
     <motion.nav
-      className="menu-bar text-gray-900 dark:text-white py-3 shadow-lg relative z-30"
+      className="menu-bar text-gray-900 dark:text-white py-3 shadow-lg relative z-30 w-full"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -77,14 +77,7 @@ const MainMenu = () => {
       }}
       dir="rtl"
     >
-      <div
-        className="container mx-auto px-4"
-        dir="rtl"
-        style={{
-          direction: "rtl",
-          display: "flex",
-        }}
-      >
+      <div className="container mx-auto px-4 w-full" dir="rtl">
         <Menu menuItems={mainMenuItems} renderIcon={renderIcon} />
       </div>
     </motion.nav>

@@ -6,6 +6,11 @@ import { useInView } from "react-intersection-observer";
 // Note: The following import is commented out since we haven't installed the package yet
 // import { Virtuoso } from "react-virtuoso";
 
+interface HotProfilesGalleryProps {
+  serviceType?: string;
+  onMediaClick: (item: { url: string; type: "image" | "video"; altText?: string }, index: number) => void;
+}
+
 // Simple loading component
 const LoadingComponent = () => (
   <div className="py-4 text-center">
@@ -53,11 +58,13 @@ const MainPageScrollGallery = ({
   loadMore,
   hasMore,
   loading,
+  onMediaClick,
 }: {
   data: HotProfileProps[];
   loadMore: () => void;
   hasMore: boolean;
   loading: boolean;
+  onMediaClick: (item: { url: string; type: "image" | "video"; altText?: string }, index: number) => void;
 }) => {
   // Track which profiles are new to animate them
   const [visibleIds, setVisibleIds] = useState<string[]>([]);
@@ -157,6 +164,14 @@ const MainPageScrollGallery = ({
                 viewsCount={profile.viewsCount}
                 priority={isPriority}
                 media={profile.media}
+                onMediaClick={(mediaIndex) => {
+                  const item = profile.media?.[mediaIndex] ?? { url: profile.imageUrl, fileType: "image/jpeg" };
+                  onMediaClick({
+                    url: item.url,
+                    type: item.fileType?.startsWith("video/") ? "video" : "image",
+                    altText: profile.name
+                  }, index);
+                }}
               />
             </div>
           );
@@ -185,8 +200,15 @@ const MainPageScrollGallery = ({
   );
 };
 
-const HotProfilesGallery = () => {
-  const { profiles, loading, error, hasMore, loadProfiles } = useHotProfiles();
+const HotProfilesGallery: React.FC<HotProfilesGalleryProps> = ({ serviceType, onMediaClick }) => {
+  // Get the profiles using the hook
+  const {
+    profiles,
+    loading,
+    error,
+    loadMore,
+    hasMore,
+  } = useHotProfiles(serviceType);
 
   if (error) {
     return <ErrorComponent message={error} />;
@@ -196,13 +218,21 @@ const HotProfilesGallery = () => {
     return <InitialLoadingState />;
   }
 
+  // Convert profiles to gallery items
+  const galleryItems = profiles.map((profile) => ({
+    url: profile.imageUrl,
+    type: "image" as const,
+    altText: profile.name,
+  }));
+
   // Return the main page scroll gallery
   return (
     <MainPageScrollGallery
       data={profiles}
-      loadMore={loadProfiles}
+      loadMore={loadMore}
       hasMore={hasMore}
       loading={loading}
+      onMediaClick={onMediaClick}
     />
   );
 

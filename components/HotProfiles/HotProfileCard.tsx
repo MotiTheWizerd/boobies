@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 // Extend the base interface to include the priority prop for rendering
 export interface HotProfileProps extends BaseHotProfileProps {
   priority?: boolean;
+  onMediaClick?: (index: number) => void;
 }
 
 // Media item interface for handling different types of media
@@ -29,34 +30,50 @@ const HotProfileCard = ({
   viewsCount,
   priority = false,
   media,
+  onMediaClick,
 }: HotProfileProps) => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isHovering, setIsHovering] = useState<boolean>(false);
+  const [shouldPlayVideo, setShouldPlayVideo] = useState<boolean>(false);
   
-  const initials = name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .substring(0, 2);
-
   // Initialize media items from props
   useEffect(() => {
-    // If we have media array, use it
     if (media && media.length > 0) {
-      setMediaItems(media);
-    }
-    // Otherwise create a single item from imageUrl
-    else if (imageUrl) {
+      // Find default image first
+      const defaultIndex = media.findIndex(item => item.isDefault);
+      const initialIndex = defaultIndex !== -1 ? defaultIndex : 0;
+      setCurrentIndex(initialIndex);
+      
+      // Set media items
+      const items = media.map(item => ({
+        url: item.url,
+        fileType: item.fileType || 'image/jpeg',
+        fileName: item.fileName,
+        isDefault: item.isDefault
+      }));
+      setMediaItems(items);
+      
+      // Set initial video playback state
+      setShouldPlayVideo(items[initialIndex]?.fileType.startsWith('video/'));
+    } else if (imageUrl) {
       setMediaItems([{
         url: imageUrl,
-        fileType: 'image/jpeg', // Assume image
-        fileName: 'default.jpg'
+        fileType: 'image/jpeg',
+        fileName: 'default.jpg',
+        isDefault: true
       }]);
+      setCurrentIndex(0);
+      setShouldPlayVideo(false);
     }
   }, [media, imageUrl]);
+
+  // Handle video playback when current item changes or hover state changes
+  useEffect(() => {
+    const isVideo = mediaItems[currentIndex]?.fileType.startsWith('video/');
+    setShouldPlayVideo(isVideo && (isHovering || mediaItems[currentIndex]?.isDefault || false));
+  }, [currentIndex, isHovering, mediaItems]);
 
   // Handle navigation between media items
   const goToPrevious = (e: React.MouseEvent) => {
@@ -82,7 +99,15 @@ const HotProfileCard = ({
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      <div className="relative h-96 md:h-[32rem] w-full">
+      <div 
+        className="relative h-96 md:h-[32rem] w-full"
+        onClick={(e) => {
+          // Don't trigger if clicking navigation buttons
+          if (e.target instanceof Element && e.target.closest('button')) return;
+          onMediaClick?.(currentIndex);
+        }}
+        style={{ cursor: 'pointer' }}
+      >
         {/* Show navigation controls if we have multiple media items */}
         {mediaItems.length > 1 && (
           <>
@@ -115,7 +140,7 @@ const HotProfileCard = ({
             <video
               ref={videoRef}
               src={mediaItems[currentIndex].url}
-              autoPlay={isHovering}
+              autoPlay={shouldPlayVideo}
               loop
               muted
               playsInline

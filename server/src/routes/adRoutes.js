@@ -171,7 +171,7 @@ router.post(
       },
     });
 
-    // Then create AdArea records if areaIds are provided
+    // Create AdArea records if areaIds are provided
     if (req.body.areaIds && Array.isArray(req.body.areaIds) && req.body.areaIds.length > 0) {
       await prisma.adArea.createMany({
         data: req.body.areaIds.map(areaId => ({
@@ -182,8 +182,18 @@ router.post(
       });
     }
 
-    // Fetch the ad with its areas
-    const adWithAreas = await prisma.ad.findUnique({
+    // Create AdCity record if cityId is provided
+    if (req.body.cityId) {
+      await prisma.adCity.create({
+        data: {
+          adId: ad.id,
+          cityId: parseInt(req.body.cityId, 10)
+        }
+      });
+    }
+
+    // Fetch the ad with its areas and cities
+    const adWithAreasAndCities = await prisma.ad.findUnique({
       where: { id: ad.id },
       include: {
         campaign: {
@@ -197,12 +207,18 @@ router.post(
             area: true,
           },
         },
+        cities: {
+          include: {
+            city: true,
+          },
+        },
       },
     });
 
     res.status(201).json({
-      ...adWithAreas,
-      areaIds: adWithAreas.areas.map(adArea => adArea.areaId.toString()),
+      ...adWithAreasAndCities,
+      areaIds: adWithAreasAndCities.areas.map(adArea => adArea.areaId.toString()),
+      cityIds: adWithAreasAndCities.cities.map(adCity => adCity.cityId.toString()),
     });
   })
 );
@@ -257,7 +273,7 @@ router.put(
     // Use images from req.body directly
     let images = req.body.images;
 
-    // Start a transaction to update both ad and areas
+    // Start a transaction to update ad, areas, and cities
     const [ad] = await prisma.$transaction([
       // Update the ad
       prisma.ad.update({
@@ -300,6 +316,10 @@ router.put(
       prisma.adArea.deleteMany({
         where: { adId: id },
       }),
+      // Delete existing AdCity records for this ad
+      prisma.adCity.deleteMany({
+        where: { adId: id },
+      }),
       // Create new AdArea records if areaIds are provided
       ...(req.body.areaIds && Array.isArray(req.body.areaIds) && req.body.areaIds.length > 0
         ? [
@@ -311,11 +331,22 @@ router.put(
               skipDuplicates: true,
             })
           ]
+        : []),
+      // Create new AdCity record if cityId is provided
+      ...(req.body.cityId
+        ? [
+            prisma.adCity.create({
+              data: {
+                adId: id,
+                cityId: parseInt(req.body.cityId, 10)
+              }
+            })
+          ]
         : [])
     ]);
 
-    // Fetch the ad with its areas to return complete data
-    const adWithAreas = await prisma.ad.findUnique({
+    // Fetch the ad with its areas and cities to return complete data
+    const adWithAreasAndCities = await prisma.ad.findUnique({
       where: { id },
       include: {
         campaign: {
@@ -329,12 +360,18 @@ router.put(
             area: true,
           },
         },
+        cities: {
+          include: {
+            city: true,
+          },
+        },
       },
     });
 
     res.status(200).json({
-      ...adWithAreas,
-      areaIds: adWithAreas.areas.map(adArea => adArea.areaId.toString()),
+      ...adWithAreasAndCities,
+      areaIds: adWithAreasAndCities.areas.map(adArea => adArea.areaId.toString()),
+      cityIds: adWithAreasAndCities.cities.map(adCity => adCity.cityId.toString()),
     });
   })
 );

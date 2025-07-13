@@ -54,8 +54,9 @@ model Campaign {
 }
 
 enum ServiceType {
-  INCALL  // ליווי
-  OUTCALL // דירה
+  INCALL  // outcall
+  OUTCALL // located
+  MIXED // both located & outcall
 }
 
 model Ad {
@@ -83,6 +84,7 @@ model Ad {
   campaignId    String
   tags          String[]   @default([])
   areas         AdArea[]   // Relation to AdArea join table
+  cities        AdCity[]   // Added relation to AdCity join table
   media         AdMedia[]  // Relation to media files
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
@@ -99,10 +101,11 @@ model Area {
 }
 
 model City {
-  id        Int    @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   city_name String
-  area      Area   @relation(fields: [area_id], references: [id])
+  area      Area     @relation(fields: [area_id], references: [id])
   area_id   Int
+  ads       AdCity[] // Added relation to ads through AdCity
 }
 
 model AdArea {
@@ -128,4 +131,16 @@ model AdMedia {
   url          String   // Public URL path
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model AdCity {
+  id        String   @id @default(uuid())
+  ad        Ad       @relation(fields: [adId], references: [id], onDelete: Cascade)
+  adId      String
+  city      City     @relation(fields: [cityId], references: [id])
+  cityId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([adId, cityId])
 }

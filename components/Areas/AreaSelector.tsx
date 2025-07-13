@@ -213,13 +213,13 @@ const AreaSelector: React.FC<AreaSelectorProps> = ({
                     }
                   `}
                 >
-                  <div className="flex items-center justify-between w-full" dir="rtl">
-                    <div className="flex items-center gap-2">
+                  <div className="flex flex-row-reverse items-center w-full">
+                    <div className="flex items-center gap-2 flex-grow">
                       <MapPinIcon className="w-4 h-4 text-gray-400" />
                       <span className="font-medium">{area.area_name}</span>
                     </div>
                     {selectedArea?.id?.toString() === area.id?.toString() && (
-                      <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-blue-600 dark:text-blue-400 ml-2" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
                       </svg>
                     )}
