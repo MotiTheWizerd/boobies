@@ -122,7 +122,7 @@ export const useHotProfiles = (serviceType?: string) => {
     } finally {
       setLoading(false);
     }
-  }, [loading, serviceType]);
+  }, [serviceType]); // Remove loading from dependencies
 
   // Load ads on component mount
   useEffect(() => {

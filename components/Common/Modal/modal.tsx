@@ -105,8 +105,7 @@ const Modal: React.FC<ModalProps> = ({
             )}
           </div>
         )}
-
-        <div className="p-5 bg-white dark:bg-gray-900">{children}</div>
+        {children}
       </div>
     </div>
   );

@@ -40,6 +40,11 @@ export default function ManageAdsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [useTestData, setUseTestData] = useState(false);
+  const [currentDefaultValues, setCurrentDefaultValues] = useState({ campaignId: isNewMode ? selectedCampaignId : formattedCampaignId });
+
+  useEffect(() => {
+    setCurrentDefaultValues(useTestData ? testData : { campaignId: isNewMode ? selectedCampaignId : formattedCampaignId });
+  }, [useTestData, selectedCampaignId, formattedCampaignId, isNewMode]);
 
   // Test data for the form
   const testData = {
@@ -276,7 +281,7 @@ export default function ManageAdsPage() {
       <AdForm
         onSubmit={handleAdSubmit}
         isSubmitting={isSubmitting}
-        defaultValues={useTestData ? testData : { campaignId: isNewMode ? selectedCampaignId : formattedCampaignId }}
+        defaultValues={currentDefaultValues}
         ad_id={adId || undefined}
       />
     </main>

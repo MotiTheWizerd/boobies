@@ -39,6 +39,34 @@ export default function AdForm({
     service_type: defaultValues.service_type || "INCALL",
   });
 
+  // Update form when defaultValues changes
+  useEffect(() => {
+    setForm(prevForm => ({
+      ...prevForm,
+      name: defaultValues.name || "",
+      description: defaultValues.description || "",
+      shortDescription: defaultValues.shortDescription || "",
+      isHappyHour: defaultValues.isHappyHour || false,
+      isHot: defaultValues.isHot || false,
+      isPremium: defaultValues.isPremium || false,
+      priority: defaultValues.priority || false,
+      status: defaultValues.status || "active",
+      tags: defaultValues.tags || "",
+      campaignId: defaultValues.campaignId || "",
+      age: defaultValues.age || "",
+      country: defaultValues.country || "",
+      titsSize: defaultValues.titsSize || "",
+      mobile: defaultValues.mobile || "",
+      whatsapp: defaultValues.whatsapp || "",
+      telegram: defaultValues.telegram || "",
+      areaIds: defaultValues.areaIds || [],
+      cityId: defaultValues.cityId || "",
+      files: defaultValues.files || [],
+      defaultFileName: defaultValues.defaultFileName || "",
+      service_type: defaultValues.service_type || "INCALL",
+    }));
+  }, [defaultValues]);
+
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
