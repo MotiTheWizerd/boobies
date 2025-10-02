@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 
 const EXPRESS_API_URL = "http://localhost:5000";
 export async function GET(request: Request) {
-  console.log("[API Areas] GET request received");
-
   // Check for the environment variable inside the handler
   if (!EXPRESS_API_URL) {
     return NextResponse.json(
@@ -13,10 +11,8 @@ export async function GET(request: Request) {
   }
 
   try {
-    console.log(`[API Areas] Fetching from: ${EXPRESS_API_URL}/api/areas`);
     // TODO: Add authentication/headers if needed for the external API
     const response = await fetch(`${EXPRESS_API_URL}/api/areas`);
-    console.log(`[API Areas] External API response status: ${response.status}`);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -30,7 +26,6 @@ export async function GET(request: Request) {
       );
     }
 
-    console.log("[API Areas] Attempting to parse response as JSON...");
     const areas = await response.json();
     console.log("[API Areas] Successfully parsed JSON, returning response.");
     return NextResponse.json(areas);

@@ -1,0 +1,143 @@
+{
+  "task": "mcp-schema-format-debugging-session",
+  "agent": "claude-sonnet-4-5",
+  "date": "2025-09-30",
+  "component": "mcp-server",
+
+  "complexity": {
+    "technical": "5: Extremely complex debugging of MCP SDK schema validation with cryptic error messages, multiple false leads, and SDK API misconceptions",
+    "business": "3: Blocks semantic memory search functionality via MCP, impacts developer productivity but not critical path",
+    "coordination": "2: Single module debugging session, minimal cross-component coordination"
+  },
+
+  "files_modified": "4",
+  "files_touched": [
+    "src/ext/modules/mcp-server/tools/schemas/MemorySearchSchema.ts",
+    "src/ext/modules/mcp-server/core/MCPServerInitializer.ts",
+    "src/ext/modules/mcp-server/types/MCPTypes.ts",
+    "src/ext/modules/mcp-server/package.json"
+  ],
+  "tests_added": "0",
+  "related_tasks": ["mcp-tool-schema-validation-error-debugging", "mcp-server-architecture-planning-failure"],
+
+  "outcomes": {
+    "performance_impact": "No impact - still debugging",
+    "test_coverage_delta": "0%",
+    "technical_debt_reduced": "medium",
+    "follow_up_needed": "true"
+  },
+
+  "summary": "MCP tool throws 'keyValidator._parse is not a function' → Discovered root cause: MCP SDK expects plain object {} with Zod validators, not z.object({}), but issue still persists after fix",
+  "root_cause": "The error 'keyValidator._parse is not a function' occurs when passing z.object({...}) instead of plain object {} to MCP SDK's registerTool(). This is a known Zod issue where incorrect wrapper usage causes cryptic errors. However, even after correcting to plain object format, the error persists, suggesting there may be additional issues with SDK version, cached build, or API usage.",
+
+  "solution": {
+    "approach": "Iterative debugging: tried multiple approaches including removing .default(), adding zod dependency, converting to JSON Schema, then discovering correct plain object format from GitHub issues",
+    "key_changes": [
+      "src/ext/modules/mcp-server/tools/schemas/MemorySearchSchema.ts: Changed from z.object({...}) to plain object {} with Zod field validators",
+      "src/ext/modules/mcp-server/types/MCPTypes.ts: Updated inputSchema type from AnyZodObject to Record<string, ZodTypeAny>",
+      "src/ext/modules/mcp-server/core/MCPServerInitializer.ts: Simplified logging, removed JSON Schema conversion attempts, pass inputSchema directly",
+      "src/ext/modules/mcp-server/package.json: Added zod@^3.24.1 and zod-to-json-schema@^3.24.1 dependencies"
+    ]
+  },
+
+  "validation": "Attempted to invoke mcp__sementix-memory__search_memory tool after each change - error persists even after correct schema format",
+
+  "gotchas": [
+    {
+      "issue": "MCP SDK expects plain object {} with Zod validators as values, NOT z.object({...}) wrapper",
+      "solution": "Use inputSchema: { query: z.string(), limit: z.number() } instead of inputSchema: z.object({ query: z.string(), limit: z.number() })",
+      "category": "integration",
+      "severity": "high"
+    },
+    {
+      "issue": "Error message 'keyValidator._parse is not a function' is cryptic and doesn't indicate the real issue",
+      "solution": "Found GitHub issue discussing this exact error - it's a known Zod v3/v4 issue when using wrong wrapper format",
+      "category": "integration",
+      "severity": "high"
+    },
+    {
+      "issue": "Multiple false leads: tried removing .default(), adding zod dependency, converting to JSON Schema",
+      "solution": "None of these approaches worked - the real issue was using z.object() wrapper instead of plain object",
+      "category": "integration",
+      "severity": "high"
+    },
+    {
+      "issue": "Error persists even after applying correct plain object format",
+      "solution": "UNRESOLVED - may be related to: SDK version mismatch, cached build artifacts, missing pnpm install in parent directory, or additional API usage issues",
+      "category": "integration",
+      "severity": "high"
+    },
+    {
+      "issue": "MCP SDK types expect ZodRawShape but plain object with Zod validators doesn't match",
+      "solution": "Used 'as any' type cast to bypass TypeScript error - indicates potential type definition mismatch in SDK",
+      "category": "typing",
+      "severity": "medium"
+    },
+    {
+      "issue": "zod-to-json-schema was added but ultimately not needed for MCP SDK",
+      "solution": "Can be removed as MCP SDK handles Zod-to-JSON-Schema conversion internally",
+      "category": "configuration",
+      "severity": "low"
+    }
+  ],
+
+  "lesson": "When debugging cryptic SDK errors: 1) Search GitHub issues for exact error message, 2) Look for examples in official SDK repo, 3) Check if wrapper functions (z.object, z.enum) need to be unwrapped to plain objects, 4) Be aware that MCP SDK internally converts Zod to JSON Schema - no manual conversion needed",
+  "tags": ["mcp", "schema-validation", "zod", "debugging", "sdk-integration", "keyValidator-parse-error", "cryptic-errors"],
+
+  "code_context": {
+    "key_patterns": [
+      "MemorySearchSchema.getDefinition() - Returns ToolDefinition with plain object of Zod validators",
+      "MCPServerInitializer.setupTools() - Registers tools with MCP SDK server.registerTool()",
+      "server.registerTool(name, {inputSchema: {...}}, handler) - MCP SDK expects plain object with Zod validators"
+    ],
+    "api_surface": [
+      "search_memory({query: string, limit?: number}): Promise<ToolCallResponse> - Semantic memory search tool (not yet functional)",
+      "ToolDefinition.inputSchema: Record<string, ZodTypeAny> - Plain object with Zod field validators"
+    ],
+    "dependencies_added": [
+      "zod@^3.24.1: Schema validation library for type-safe tool parameters",
+      "zod-to-json-schema@^3.24.1: Convert Zod schemas to JSON Schema (added but not currently used)"
+    ],
+    "breaking_changes": [
+      "inputSchema format: z.object({...}) → plain object {} with Zod validators",
+      "ToolDefinition.inputSchema type: AnyZodObject → Record<string, ZodTypeAny>",
+      "Removed inputJsonSchema field from ToolDefinition interface"
+    ]
+  },
+
+  "future_planning": {
+    "next_logical_steps": [
+      "Verify MCP SDK version matches expected API (check if using v1.0.4 correctly)",
+      "Check if node_modules needs reinstall in parent directory or workspace root",
+      "Test with minimal MCP server example from official SDK repo to isolate issue",
+      "Add debug logging to see exact schema object being passed to registerTool",
+      "Consider testing with MCP Inspector tool to see what's being sent over wire",
+      "If still failing, create minimal reproduction and file issue on MCP SDK repo",
+      "Once working, implement actual MemoryService.search() functionality (currently placeholder)",
+      "Remove zod-to-json-schema dependency if not needed"
+    ],
+    "architecture_decisions": {
+      "schema_format": "Use plain object with Zod validators per MCP SDK convention, not z.object() wrapper",
+      "type_safety": "Use 'as any' cast temporarily until SDK types are clarified or fixed",
+      "validation": "Rely on MCP SDK to handle Zod schema validation and JSON Schema conversion internally"
+    },
+    "extension_points": [
+      "src/ext/modules/mcp-server/tools/schemas/ - Add new tool schemas using plain object format",
+      "src/ext/modules/mcp-server/tools/handlers/ - Add corresponding handlers for new tools",
+      "src/ext/modules/mcp-server/services/MemoryService.ts - Implement actual semantic search logic"
+    ]
+  },
+
+  "user_context": {
+    "development_style": "staged-testing",
+    "naming_preferences": "natural-conversational",
+    "architecture_philosophy": "single-responsibility",
+    "quality_standards": "maintainability-focus"
+  },
+
+  "semantic_context": {
+    "domain_concepts": ["semantic-memory", "mcp-protocol", "tool-registration", "schema-validation", "zod-schemas"],
+    "technical_patterns": ["ultra-modular-architecture", "tool-registry-pattern", "handler-pattern", "sdk-integration"],
+    "integration_points": ["@modelcontextprotocol/sdk", "claude-code-mcp", "zod", "zod-to-json-schema"]
+  }
+}

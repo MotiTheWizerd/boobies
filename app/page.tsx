@@ -8,13 +8,14 @@ import AreaSelector from "@/components/Areas/AreaSelector";
 import { pageTransition } from "@/app/utils/animations";
 
 export default function Home() {
-  const [selectedAreaId, setSelectedAreaId] = useState<string | number | null>(null);
+  const [selectedAreaId, setSelectedAreaId] = useState<string | number | null>(
+    null
+  );
 
   const handleAreaChange = (areaId: string | number | null) => {
-    console.log('Area changed to:', areaId);
     setSelectedAreaId(areaId);
     // TODO: Filter content based on selected area
-  };
+
 
   return (
     <motion.div
